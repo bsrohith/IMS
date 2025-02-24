@@ -1,3 +1,7 @@
+using InventoryManagement.Application.Interfaces;
+using InventoryManagement.Application.Services;
+using InventoryManagement.Repo.Interfaces;
+using InventoryManagement.Repo.Repository;
 using InventoryManagementSystem.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+
 
 var app = builder.Build();
 

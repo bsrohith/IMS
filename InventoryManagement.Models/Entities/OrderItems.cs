@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace InventoryManagement.Models.Entities
 {
-    public class OrderItem
+    public class OrderItems
     {
         public int Id { get; set; }
         public int OrderId { get; set; }  // Foreign Key

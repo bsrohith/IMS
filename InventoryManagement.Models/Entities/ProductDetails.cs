@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace InventoryManagement.Models.Entities
 {
-    public class ProductDetail
+    public class ProductDetails
     {
         public int ProductDetailId { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string ProductDescription { get; set; } = string.Empty;
         public string ProductPhoto { get; set; } = string.Empty;
         public int ProductId { get; set; }
     }

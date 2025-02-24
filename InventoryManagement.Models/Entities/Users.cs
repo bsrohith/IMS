@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace InventoryManagement.Models.Entities
 {
-    public class User
+    public class Users
     {
-        public int Id { get; set; }
+        public int UserId { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Address { get; set; } = string.Empty;
+        public string UserAddress { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
-        public string Role { get; set; } = CommonStrings.User;
+        public string UserRole { get; set; } = CommonStrings.User;
         public DateTime CreatedAt { get; set; }
     }
 }

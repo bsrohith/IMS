@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace InventoryManagement.Models.Entities
 {
-    public class Order
+    public class Orders
     {
-        public int Id { get; set; }
+        public int OrderId { get; set; }
         public int UserId { get; set; }  // Foreign Key
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public string Status { get; set; } = CommonStrings.OrderCreated;
+        public string OrderStatus { get; set; } = CommonStrings.OrderCreated;
     }
 }

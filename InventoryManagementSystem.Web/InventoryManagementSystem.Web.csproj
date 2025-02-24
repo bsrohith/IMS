@@ -11,7 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <ProjectReference Include="..\InventoryManagement.Application\InventoryManagement.Application.csproj" />
+=======
+>>>>>>> a6cf3dcb8ab77027bb3b4938ea7f2b50e6695ea1
     <ProjectReference Include="..\InventoryManagement.Repo\InventoryManagement.Repo.csproj" />
   </ItemGroup>
 

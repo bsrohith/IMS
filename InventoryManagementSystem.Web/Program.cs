@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 using InventoryManagement.Application.Interfaces;
 using InventoryManagement.Application.Services;
 using InventoryManagement.Repo.Interfaces;
 using InventoryManagement.Repo.Repository;
+=======
+>>>>>>> a6cf3dcb8ab77027bb3b4938ea7f2b50e6695ea1
 using InventoryManagement.Repo.Data;
 using InventoryManagementSystem.Web.Components;
 
@@ -11,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+<<<<<<< HEAD
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -23,6 +27,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 
 
+=======
+>>>>>>> a6cf3dcb8ab77027bb3b4938ea7f2b50e6695ea1
 //dapper db context
 builder.Services.AddSingleton<DapperDbContext>();
 

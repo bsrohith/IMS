@@ -1,3 +1,4 @@
+using InventoryManagement.Repo.Data;
 using InventoryManagementSystem.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+//dapper db context
+builder.Services.AddSingleton<DapperDbContext>();
+
 
 var app = builder.Build();
 

@@ -19,5 +19,8 @@
         public const string TransactionUpdate = "U";
         public const string TransactionSold = "S";
         public const string TransactionDeleted = "D";
+
+        //Connection String
+        public const string ConnectionString = @"Server=(localdb)\\MSSQLLocalDB;Database=ims;Trusted_Connection=True;MultipleActiveResultSets=True";
     }
 }

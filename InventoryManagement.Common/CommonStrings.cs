@@ -5,7 +5,7 @@
         //Roles
         public const string User = "User";
         public const string Admin = "Admnin";
-        public const string Seller = "Seller";
+        public const string Supplier = "Supplier";
 
         //Order Status
         public const string OrderPending = "P";

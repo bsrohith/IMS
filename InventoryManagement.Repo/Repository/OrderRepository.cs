@@ -29,7 +29,7 @@ namespace InventoryManagement.Repo.Repository
         {
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<Orders>(
-                "SELECT * FROM Orders WHERE Id = @Id", new { Id = id });
+                "SELECT * FROM Orders WHERE OrderId = @OrderId", new { Id = id });
         }
 
         public async Task<int> CreateOrder(Orders order)

@@ -11,6 +11,6 @@ namespace InventoryManagement.Repo.Interfaces
     {
         Task<bool> UsernameExistsAsync(string username);
         Task<bool> EmailExistsAsync(string email);
-        Task<Users> CreateUserAsync(Users user);
+        Task CreateUserAsync(Users user);
     }
 }

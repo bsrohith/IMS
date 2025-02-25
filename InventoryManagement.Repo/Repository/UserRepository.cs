@@ -31,13 +31,13 @@ namespace InventoryManagement.Repo.Repository
             return await connection.QueryFirstOrDefaultAsync<bool>("SELECT 1 FROM Users WHERE Email = @Email", new { Email = email });
         }
 
-        public async Task<Users> CreateUserAsync(Users user)
+        public async Task CreateUserAsync(Users user)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress) VALUES (@Username, @Email, @Password, @Role, @CreatedAt, @UserAddress); SELECT SCOPE_IDENTITY()";
-            var userId = await connection.QueryFirstOrDefaultAsync<int>(query, user);
-            user.UserId = userId;
-            return user;
+            //var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress) VALUES (@Username, @Email, @Password, @Role, @CreatedAt, @UserAddress); SELECT SCOPE_IDENTITY()";
+            var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress) VALUES (@Username, @Email, @Password, @Role, @CreatedAt, @UserAddress);";
+
+            await connection.ExecuteAsync(query, user);
         }
     }
 }

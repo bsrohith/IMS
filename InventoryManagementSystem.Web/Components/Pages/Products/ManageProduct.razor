@@ -2,8 +2,6 @@
 @rendermode InteractiveServer
 @inherits LayoutComponentBase
 
-<h3>ManageProduct</h3>
-
 <div class="card">
     <div class="card-header">
         <h5>@((Product.ProductId == 0) ? "Add Product" : "Edit Product")</h5>
@@ -11,25 +9,24 @@
     <div class="card-body">
         <EditForm Model="Product" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
-
+            <ValidationSummary class="alert alert-danger" />
             <div class="row">
-                <!-- Product Name -->
                 <div class="col-md-6 mb-3">
-                    <label for="productName" class="form-label">Product Name</label>
+                    <label for="productName" class="form-label">Product Name <span style="color:red">*</span></label>
                     <InputText id="productName" class="form-control" @bind-Value="Product.ProductName" />
                     <ValidationMessage For="@(() => Product.ProductName)" class="text-danger" />
                 </div>
 
                 <!-- Price -->
                 <div class="col-md-6 mb-3">
-                    <label for="price" class="form-label">Price</label>
+                    <label for="price" class="form-label">Price <span style="color:red">*</span></label>
                     <InputNumber id="price" class="form-control" @bind-Value="Product.Price" />
                     <ValidationMessage For="@(() => Product.Price)" class="text-danger" />
                 </div>
 
                 <!-- Stock Quantity -->
                 <div class="col-md-6 mb-3">
-                    <label for="stockQuantity" class="form-label">Stock Quantity</label>
+                    <label for="stockQuantity" class="form-label">Stock Quantity <span style="color:red">*</span></label>
                     <InputNumber id="stockQuantity" class="form-control" @bind-Value="Product.StockQuantity" />
                     <ValidationMessage For="@(() => Product.StockQuantity)" class="text-danger" />
                 </div>
@@ -45,7 +42,6 @@
                     </select>
                 </div>
 
-                <!-- Supplier Dropdown -->
                 <div class="col-md-6 mb-3">
                     <label for="supplier" class="form-label">Supplier</label>
                     <select id="supplier" class="form-select" @bind="Product.SupplierId">
@@ -56,13 +52,11 @@
                     </select>
                 </div>
 
-                <!-- Product Description -->
                 <div class="col-12 mb-3">
                     <label for="productDescription" class="form-label">Product Description</label>
                     <textarea id="productDescription" class="form-control" rows="3" @bind="Product.ProductDescription"></textarea>
                 </div>
 
-                <!-- Product Image Upload -->
                 <div class="col-12 mb-3">
                     <label class="form-label">Upload Product Image</label>
                     <InputFile OnChange="OnFileChange" class="form-control" />
@@ -73,7 +67,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="card-footer text-end">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>

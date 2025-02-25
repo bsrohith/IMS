@@ -1,36 +1,50 @@
 ﻿@page "/inventory"
 @rendermode InteractiveServer
-@inject IInventoryService InventoryService
 
 <h3>Inventory Transactions</h3>
 
 <table class="table">
     <thead>
         <tr>
+            <th>Sl no.</th>
             <th>Product</th>
-            <th>Type</th>
-            <th>Quantity</th>
-            <th>Date</th>
+            <th>Category</th>
+            <th>Total Quantity</th>
+            <th>Last Modified Date</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
+        @{
+            int slNo = 1;
+        }
         @foreach (var transaction in transactions)
         {
             <tr>
-                <td>@transaction.ProductId</td>
-                <td>@transaction.TransactionType</td>
-                <td>@transaction.Quantity</td>
-                <td>@transaction.TransactionDate</td>
+                <td>@slNo</td>
+                <td>@transaction.ProductName</td>
+                <td>@transaction.Category</td>
+                <td>@transaction.TotalQuantity</td>
+                <td>@transaction.LastModifiedDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="() => ViewDetails(transaction.InventoryTransactionsId)">Details</button>
+                </td>
             </tr>
+            slNo++;
         }
     </tbody>
 </table>
 
 @code {
-    private List<InventoryTransactions> transactions = new();
+    private List<InventoryTransactionViewModel> transactions = new();
 
     protected override async Task OnInitializedAsync()
     {
-        transactions = (await InventoryService.GetInventoryTransactions()).ToList();
+        transactions = await InventoryService.GetInventoryTransactionDetails();
+    }
+
+    private void ViewDetails(int id)
+    {
+        Navigation.NavigateTo($"/inventory/details/{id}");
     }
 }

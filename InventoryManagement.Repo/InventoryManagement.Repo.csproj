@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs" />
     <Compile Include="obj\Debug\net8.0\InventoryManagement.Repo.AssemblyInfo.cs" />
-    <Compile Include="obj\Debug\net8.0\InventoryManagement.Repo.GlobalUsings.g.cs" />
   </ItemGroup>
 
   <ItemGroup>

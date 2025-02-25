@@ -9,7 +9,7 @@ namespace InventoryManagement.Application.Interfaces
 {
     public interface ISupplierService
     {
-        Task<IEnumerable<Suppliers>> GetAllSuppliers();
+        Task<List<Suppliers>> GetAllSuppliers();
         Task<Suppliers> GetSuppliersById(int id);
     }
 }

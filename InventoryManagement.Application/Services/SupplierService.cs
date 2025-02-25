@@ -17,9 +17,9 @@ namespace InventoryManagement.Application.Services
         {
             _supplierRepository = supplierRepository;
         }
-        public async Task<IEnumerable<Suppliers>> GetAllSuppliers()
+        public async Task<List<Suppliers>> GetAllSuppliers()
         {
-            return await _supplierRepository.GetAllSuppliers();
+            return (List<Suppliers>)await _supplierRepository.GetAllSuppliers();
         }
 
         public async Task<Suppliers> GetSuppliersById(int id)

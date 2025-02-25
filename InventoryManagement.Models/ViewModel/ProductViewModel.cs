@@ -1,4 +1,4 @@
-﻿namespace InventoryManagementSystem.Models.ViewModel
+﻿namespace InventoryManagement.Models.ViewModel
 {
     public class ProductViewModel
     {

@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
-using InventoryManagementSystem.Models.ViewModel;
 
 namespace InventoryManagement.Repo.Repository
 {
@@ -57,6 +57,7 @@ namespace InventoryManagement.Repo.Repository
         {
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryAsync<ProductViewModel>("SELECT * FROM Products");
+
         }
     }
 }

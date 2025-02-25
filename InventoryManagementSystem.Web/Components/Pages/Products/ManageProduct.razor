@@ -1,61 +1,93 @@
 ﻿@page "/manageproduct/{id:int?}"
 @rendermode InteractiveServer
+@inherits LayoutComponentBase
+
 <h3>ManageProduct</h3>
 
-<MudCard>
-    <MudCardHeader>
-        <MudText Typo="Typo.h5">@((Product.ProductId == 0) ? "Add Product" : "Edit Product")</MudText>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudForm Model="Product" @valid="HandleValidSubmit">
-            <MudGrid>
-                <MudItem xs="12" md="6">
-                    <MudTextField Label="Product Name" @bind-Value="Product.ProductName" Required="true" />
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudTextField Label="Price" @bind-Value="Product.Price" Type="number" Required="true" />
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudTextField Label="Stock Quantity" @bind-Value="Product.StockQuantity" Type="number" Required="true" />
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudSelect Label="Category" @bind-Value="Product.CategoryId">
+<div class="card">
+    <div class="card-header">
+        <h5>@((Product.ProductId == 0) ? "Add Product" : "Edit Product")</h5>
+    </div>
+    <div class="card-body">
+        <EditForm Model="Product" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                <!-- Product Name -->
+                <div class="col-md-6 mb-3">
+                    <label for="productName" class="form-label">Product Name</label>
+                    <InputText id="productName" class="form-control" @bind-Value="Product.ProductName" />
+                    <ValidationMessage For="@(() => Product.ProductName)" class="text-danger" />
+                </div>
+
+                <!-- Price -->
+                <div class="col-md-6 mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <InputNumber id="price" class="form-control" @bind-Value="Product.Price" />
+                    <ValidationMessage For="@(() => Product.Price)" class="text-danger" />
+                </div>
+
+                <!-- Stock Quantity -->
+                <div class="col-md-6 mb-3">
+                    <label for="stockQuantity" class="form-label">Stock Quantity</label>
+                    <InputNumber id="stockQuantity" class="form-control" @bind-Value="Product.StockQuantity" />
+                    <ValidationMessage For="@(() => Product.StockQuantity)" class="text-danger" />
+                </div>
+
+                <!-- Category Dropdown -->
+                <div class="col-md-6 mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select id="category" class="form-select" @bind="Product.CategoryId">
                         @foreach (var category in Categories)
                         {
-                            <MudSelectItem Value="category.CategoryId">@category.CategoryName</MudSelectItem>
+                            <option value="@category.CategoryId">@category.CategoryName</option>
                         }
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudSelect Label="Supplier" @bind-Value="Product.SupplierId">
+                    </select>
+                </div>
+
+                <!-- Supplier Dropdown -->
+                <div class="col-md-6 mb-3">
+                    <label for="supplier" class="form-label">Supplier</label>
+                    <select id="supplier" class="form-select" @bind="Product.SupplierId">
                         @foreach (var supplier in Suppliers)
                         {
-                            <MudSelectItem Value="supplier.SupplierId">@supplier.SupplierName</MudSelectItem>
+                            <option value="@supplier.SupplierId">@supplier.SupplierName</option>
                         }
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudTextField Label="Product Description" @bind-Value="Product.ProductDescription" Multiline="true" Rows="3" />
-                </MudItem>
-                <MudItem xs="12">
-                    <MudText Typo="Typo.body1">Upload Product Image</MudText>
-                    <InputFile OnChange="OnFileChange" />
+                    </select>
+                </div>
+
+                <!-- Product Description -->
+                <div class="col-12 mb-3">
+                    <label for="productDescription" class="form-label">Product Description</label>
+                    <textarea id="productDescription" class="form-control" rows="3" @bind="Product.ProductDescription"></textarea>
+                </div>
+
+                <!-- Product Image Upload -->
+                <div class="col-12 mb-3">
+                    <label class="form-label">Upload Product Image</label>
+                    <InputFile OnChange="OnFileChange" class="form-control" />
                     @if (!string.IsNullOrEmpty(Product.ProductPhoto))
                     {
-                        <img src="data:image/png;base64,@Product.ProductPhoto" alt="Product Image" width="100" height="100" />
+                        <img src="data:image/png;base64,@Product.ProductPhoto" alt="Product Image" class="img-thumbnail mt-2" width="100" height="100" />
                     }
-                </MudItem>
-            </MudGrid>
-            <MudCardActions>
-                <MudButton Color="Color.Primary" Type="submit">Save</MudButton>
-                <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
-            </MudCardActions>
-        </MudForm>
-    </MudCardContent>
-</MudCard>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary ms-2" @onclick="Cancel">Cancel</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
 
 
 @code {
+    [Parameter]
+    public int? Id { get; set; }
+
     private ProductViewModel Product = new();
     private List<Categories> Categories = new();
     private List<Suppliers> Suppliers = new();
@@ -63,6 +95,16 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // if (Id.HasValue && Id > 0)
+        // {
+        //     // Fetch the product for editing
+        //     Product = await ProductService.GetProductByIdAsync(Id.Value);
+        // }
+        // else
+        // {
+        //     // Initialize a new product for adding
+        //     Product = new ProductViewModel();
+        // }
         Categories = await CategoryService.GetAllCategories();
         Suppliers = await SupplierService.GetAllSuppliers();
     }

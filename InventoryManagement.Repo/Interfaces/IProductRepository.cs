@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Models.Entities;
+using InventoryManagementSystem.Models.ViewModel;
 namespace InventoryManagement.Repo.Interfaces
 {
     public interface IProductRepository
@@ -13,6 +14,7 @@ namespace InventoryManagement.Repo.Interfaces
         Task AddProductAsync(Products product);
         Task UpdateProductAsync(Products product);
         Task DeleteProductAsync(int id);
+        Task<IEnumerable<ProductViewModel>> GetAllProductsWithDetailAsync();
     }
     
 }

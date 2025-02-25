@@ -8,6 +8,8 @@ using InventoryManagement.Models.Entities;
 using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace InventoryManagement.Repo.Repository
 {
@@ -32,32 +34,52 @@ namespace InventoryManagement.Repo.Repository
             return await connection.QueryFirstOrDefaultAsync<Products>("SELECT * FROM Products WHERE ProductId = @Id", new { ProductId = id });
         }
 
-        public async Task AddProductAsync(Products product)
+        public async Task<int> AddProductAsync(Products product)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = "INSERT INTO Products (Name, Description, Price, StockQuantity, SellerId, CreatedAt) VALUES (@Name, @Description, @Price, @StockQuantity, @SellerId, @CreatedAt)";
-            await connection.ExecuteAsync(query, product);
+            var query = @" INSERT INTO Products (ProductName, Price, StockQuantity, CategoryId, SupplierId, CreatedAt) 
+                           VALUES (@ProductName, @Price, @StockQuantity, @CategoryId, @SupplierId, @CreatedAt);
+                           SELECT CAST(SCOPE_IDENTITY() as int);";
+            return await connection.QuerySingleAsync<int>(query, product);
         }
 
         public async Task UpdateProductAsync(Products product)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = "UPDATE Products SET Name = @Name, Description = @Description, Price = @Price, StockQuantity = @StockQuantity WHERE Id = @Id";
+            var query = "UPDATE Products SET ProductName=@ProductName, Price=@Price, StockQuantity=@StockQuantity, CategoryId=@CategoryId, SupplierId=@SupplierId WHERE ProductId=@ProductId";
             await connection.ExecuteAsync(query, product);
         }
 
         public async Task DeleteProductAsync(int id)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = "DELETE FROM Products WHERE Id = @Id";
-            await connection.ExecuteAsync(query, new { Id = id });
+            var query = "DELETE FROM Products WHERE ProductId = @ProductId";
+            await connection.ExecuteAsync(query, new { ProductId = id });
         }
 
         public async Task<IEnumerable<ProductViewModel>> GetAllProductsWithDetailAsync()
         {
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryAsync<ProductViewModel>("SELECT * FROM Products");
+            var query = @"SELECT p.ProductId, p.ProductName, p.Price, p.StockQuantity, 
+                               p.CategoryId, p.SupplierId, p.CreatedAt, 
+                               pd.ProductDescription, pd.ProductPhoto
+                        FROM Products p
+                        LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId";
+            return await connection.QueryAsync<ProductViewModel>(query);
 
+        }
+
+        public async Task<ProductViewModel> GetProductViewModeByIdAsync(int id)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = @"SELECT p.ProductId, p.ProductName, p.Price, p.StockQuantity, 
+                               p.CategoryId, p.SupplierId, p.CreatedAt, 
+                               pd.ProductDescription, pd.ProductPhoto
+                        FROM Products p
+                        LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
+                        WHERE p.ProductId = @ProductId";
+
+            return await connection.QueryFirstOrDefaultAsync<ProductViewModel>(query, new { ProductId = id });
         }
     }
 }

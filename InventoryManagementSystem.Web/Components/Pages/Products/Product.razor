@@ -10,6 +10,7 @@
     <thead>
         <tr>
             <th>Name</th>
+            <th>Category</th>
             <th>Price</th>
             <th>Stock</th>
             <th>Actions</th>
@@ -20,25 +21,88 @@
         {
             <tr>
                 <td>@product.ProductName</td>
+                <td>@Categories.FirstOrDefault(cat => cat.CategoryId.Equals(product.CategoryId)).CategoryName</td>
                 <td>@product.Price</td>
                 <td>@product.StockQuantity</td>
                 <td>
-                    <button class="btn btn-warning btn-sm">Edit</button>
-                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteProduct(product.ProductId)">Delete</button>
+                    <button class="btn btn-primary btn-sm" @onclick="() => ShowDetails(product)">Detail</button>
+                    <button class="btn btn-warning btn-sm" @onclick="() => EditProduct(product.ProductId)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(product.ProductId)">Delete</button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
+
+<!--Inline Delete Confirmation Dialog -->
+@if (isDeleteConfirmationVisible)
+{
+    <div class="modal-overlay">
+        <div class="modal-box">
+            <h5>Confirm Delete</h5>
+            <p>Are you sure you want to delete this product?</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" @onclick="DeleteConfirmed">Yes, Delete</button>
+                <button class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+@* detail modal *@
+@if (isDetailModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@selectedProduct?.ProductName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDetails"></button>
+                </div>
+                <div class="modal-body">
+                    @if (selectedProduct != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="data:image/png;base64,@selectedProduct.ProductPhoto" class="img-fluid rounded" alt="@selectedProduct.ProductName"
+                                     onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
+                            </div>
+                            <div class="col-md-8">
+                                <p class="text-muted">@selectedProduct.ProductDescription</p>
+                                <h5 class="text-success">$@selectedProduct.Price</h5>
+                                <p><strong>Stock:</strong> @selectedProduct.StockQuantity</p>
+                                <p><strong>Category:</strong> @Categories.FirstOrDefault(cat => cat.CategoryId.Equals(selectedProduct.CategoryId)).CategoryName</p>
+                                <p><strong>Supplier:</strong> @Suppliers.FirstOrDefault(sup => sup.SupplierId.Equals(selectedProduct.SupplierId)).SupplierName</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseDetails">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+
 @code {
-    private List<Products> products = new();
-    private Products newProduct = new Products();
+    private List<ProductViewModel> products = new();
+    private List<Categories> Categories = new();
+    private List<Suppliers> Suppliers = new();
     private bool isAdding = false;
+
+    private int selectedProductId;
+    private bool isDeleteConfirmationVisible = false;
 
     protected override async Task OnInitializedAsync()
     {
-        products = (await ProductService.GetAllProductsAsync()).ToList();
+        products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        Categories = await CategoryService.GetAllCategories();
+        Suppliers = await SupplierService.GetAllSuppliers();
     }
 
     private void GoToManageProdudct()
@@ -46,27 +110,48 @@
         Navigation.NavigateTo("/manageproduct");
     }
 
-    // private async Task AddProduct()
-    // {
-    //     await ProductService.AddProductAsync(newProduct);
-    //     isAdding = false;
-    //     products = (await ProductService.GetAllProductsAsync()).ToList();
-    // }
-
-    // private void CancelAdd()
-    // {
-    //     isAdding = false;
-    // }
-
-    private async Task DeleteProduct(int id)
+    private void EditProduct(int productId)
     {
-        await ProductService.DeleteProductAsync(id);
-        products = (await ProductService.GetAllProductsAsync()).ToList();
+        Navigation.NavigateTo($"/manageproduct/{productId}");
     }
 
-    // private void EditProduct(Products product)
-    // {
-    //     newProduct = product;
-    //     isAdding = true;
-    // }
+    #region delete
+    private void ConfirmDelete(int productId)
+    {
+        selectedProductId = productId;
+        isDeleteConfirmationVisible = true;
+    }
+
+    private void CancelDelete()
+    {
+        isDeleteConfirmationVisible = false;
+        selectedProductId = 0;
+    }
+
+    private async void DeleteConfirmed()
+    {
+        await ProductDetailService.DeleteProductDetailAsync(selectedProductId);
+        await ProductService.DeleteProductAsync(selectedProductId);
+        products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        isDeleteConfirmationVisible = false;
+        selectedProductId = 0;
+        StateHasChanged();
+    }
+    #endregion
+
+    #region detail modal
+    private bool isDetailModalVisible = false;
+    private ProductViewModel selectedProduct;
+
+    private void ShowDetails(ProductViewModel product)
+    {
+        selectedProduct = product;
+        isDetailModalVisible = true;
+    }
+
+    private void CloseDetails()
+    {
+        isDetailModalVisible = false;
+    }
+    #endregion
 }

@@ -1,0 +1,50 @@
+﻿@page "/inventory"
+@rendermode InteractiveServer
+
+<h3>Inventory Transactions</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sl no.</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Total Quantity</th>
+            <th>Last Modified Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int slNo = 1;
+        }
+        @foreach (var transaction in transactions)
+        {
+            <tr>
+                <td>@slNo</td>
+                <td>@transaction.ProductName</td>
+                <td>@transaction.Category</td>
+                <td>@transaction.TotalQuantity</td>
+                <td>@transaction.LastModifiedDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <button class="btn btn-primary" onclick="ViewDetails(@transaction.InventoryTransactionsId)">Details</button>
+                </td>
+            </tr>
+            slNo++;
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<InventoryTransactionViewModel> transactions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await InventoryService.GetInventoryTransactionDetails();
+    }
+
+    private void ViewDetails(int transactionId)
+    {
+        Navigation.NavigateTo($"/inventory/details/{transactionId}");
+    }
+}

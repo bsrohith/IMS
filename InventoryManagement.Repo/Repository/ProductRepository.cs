@@ -28,7 +28,7 @@ namespace InventoryManagement.Repo.Repository
         public async Task<Products> GetProductByIdAsync(int id)
         {
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Products>("SELECT * FROM Products WHERE Id = @Id", new { Id = id });
+            return await connection.QueryFirstOrDefaultAsync<Products>("SELECT * FROM Products WHERE ProductId = @Id", new { ProductId = id });
         }
 
         public async Task AddProductAsync(Products product)

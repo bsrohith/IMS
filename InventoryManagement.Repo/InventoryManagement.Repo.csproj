@@ -7,6 +7,42 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs" />
+    <Compile Include="obj\Debug\net8.0\InventoryManagement.Repo.AssemblyInfo.cs" />
+    <Compile Include="obj\Debug\net8.0\InventoryManagement.Repo.GlobalUsings.g.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\net8.0\InventoryManagement.Repo.deps.json" />
+    <Content Include="obj\Debug\net8.0\InventoryManagement.Repo.csproj.FileListAbsolute.txt" />
+    <Content Include="obj\Debug\net8.0\InventoryManagement.Repo.sourcelink.json" />
+    <Content Include="obj\InventoryManagement.Repo.csproj.nuget.dgspec.json" />
+    <Content Include="obj\project.assets.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="bin\Debug\net8.0\InventoryManagement.Common.dll" />
+    <None Include="bin\Debug\net8.0\InventoryManagement.Common.pdb" />
+    <None Include="bin\Debug\net8.0\InventoryManagement.Models.dll" />
+    <None Include="bin\Debug\net8.0\InventoryManagement.Models.pdb" />
+    <None Include="bin\Debug\net8.0\InventoryManagement.Repo.dll" />
+    <None Include="bin\Debug\net8.0\InventoryManagement.Repo.pdb" />
+    <None Include="obj\Debug\net8.0\Inventor.D07C854A.Up2Date" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.AssemblyInfoInputs.cache" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.assets.cache" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.csproj.AssemblyReference.cache" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.csproj.CoreCompileInputs.cache" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.dll" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.GeneratedMSBuildEditorConfig.editorconfig" />
+    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.pdb" />
+    <None Include="obj\Debug\net8.0\refint\InventoryManagement.Repo.dll" />
+    <None Include="obj\Debug\net8.0\ref\InventoryManagement.Repo.dll" />
+    <None Include="obj\InventoryManagement.Repo.csproj.nuget.g.props" />
+    <None Include="obj\InventoryManagement.Repo.csproj.nuget.g.targets" />
+    <None Include="obj\project.nuget.cache" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\InventoryManagement.Models\InventoryManagement.Models.csproj" />
   </ItemGroup>
 

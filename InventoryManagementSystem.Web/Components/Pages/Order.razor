@@ -1,0 +1,36 @@
+﻿@page "/orders"
+@rendermode InteractiveServer
+@inject IOrderService OrderService
+
+<h3>Orders</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Total</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in orders)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.UserId</td>
+                <td>@order.TotalAmount</td>
+                <td>@order.OrderStatus</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Orders> orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = (await OrderService.GetAllOrders()).ToList();
+    }
+}

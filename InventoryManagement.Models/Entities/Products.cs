@@ -14,7 +14,6 @@ namespace InventoryManagement.Models.Entities
         public int StockQuantity { get; set; }
         public int CategoryId { get; set; }  // Foreign Key
         public int SupplierId { get; set; }  // Foreign Key
-        public int SellerId { get; set; }    // Foreign Key (Seller who owns the product)
         public DateTime CreatedAt { get; set; }
     }
 }

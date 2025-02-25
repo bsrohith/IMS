@@ -1,28 +1,10 @@
 ﻿@page "/"
 @page "/products"
 @rendermode InteractiveServer
-@inject IProductService ProductService
 
 <h3>Product Management</h3>
 
-<button class="btn btn-primary mb-3" @onclick="ShowAddForm">Add Product</button>
-
-@if (isAdding)
-{
-    <EditForm Model="newProduct" OnValidSubmit="AddProduct">
-        <DataAnnotationsValidator />
-        <div class="mb-3">
-            <label>Name</label>
-            <InputText class="form-control" @bind-Value="newProduct.ProductName" />
-        </div>
-        <div class="mb-3">
-            <label>Price</label>
-            <InputNumber class="form-control" @bind-Value="newProduct.Price" />
-        </div>
-        <button type="submit" class="btn btn-success">Save</button>
-        <button type="button" class="btn btn-secondary" @onclick="CancelAdd">Cancel</button>
-    </EditForm>
-}
+<button class="btn btn-primary mb-3" @onclick="GoToManageProdudct">Add Product</button>
 
 <table class="table">
     <thead>
@@ -59,23 +41,22 @@
         products = (await ProductService.GetAllProductsAsync()).ToList();
     }
 
-    private void ShowAddForm()
+    private void GoToManageProdudct()
     {
-        isAdding = true;
-        newProduct = new Products();
+        Navigation.NavigateTo("/manageproduct");
     }
 
-    private async Task AddProduct()
-    {
-        await ProductService.AddProductAsync(newProduct);
-        isAdding = false;
-        products = (await ProductService.GetAllProductsAsync()).ToList();
-    }
+    // private async Task AddProduct()
+    // {
+    //     await ProductService.AddProductAsync(newProduct);
+    //     isAdding = false;
+    //     products = (await ProductService.GetAllProductsAsync()).ToList();
+    // }
 
-    private void CancelAdd()
-    {
-        isAdding = false;
-    }
+    // private void CancelAdd()
+    // {
+    //     isAdding = false;
+    // }
 
     private async Task DeleteProduct(int id)
     {
@@ -83,9 +64,9 @@
         products = (await ProductService.GetAllProductsAsync()).ToList();
     }
 
-    private void EditProduct(Products product)
-    {
-        newProduct = product;
-        isAdding = true;
-    }
+    // private void EditProduct(Products product)
+    // {
+    //     newProduct = product;
+    //     isAdding = true;
+    // }
 }

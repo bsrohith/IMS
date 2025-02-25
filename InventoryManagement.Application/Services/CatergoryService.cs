@@ -1,5 +1,6 @@
 ﻿using InventoryManagement.Application.Interfaces;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Repo.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace InventoryManagement.Application.Services
 {
-    public class CatergoryService
+    public class CatergoryService:ICategoryService
     {
-        private readonly ICategoryService _categoryService;
-        public CatergoryService(ICategoryService categoryService)
+        private readonly ICategoryRepository _categoryreporitory;
+        public CatergoryService(ICategoryRepository categoryrepository)
         {
-            _categoryService= categoryService;
+            _categoryreporitory= categoryrepository;
         }
-        public async Task<IEnumerable<Categories>> GetAllCategories()
+        public async Task<List<Categories>> GetAllCategories()
         {
-            return await _categoryService.GetAllCategories();
+            return (List<Categories>)await _categoryreporitory.GetAllCategories();
         }
     }
 }

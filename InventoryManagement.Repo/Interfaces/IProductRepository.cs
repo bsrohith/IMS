@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Models.Entities;
-using InventoryManagementSystem.Models.ViewModel;
+using InventoryManagement.Models.ViewModel;
 namespace InventoryManagement.Repo.Interfaces
 {
     public interface IProductRepository

@@ -2,8 +2,105 @@
 @rendermode InteractiveServer
 <h3>ManageProduct</h3>
 
+<MudCard>
+    <MudCardHeader>
+        <MudText Typo="Typo.h5">@((Product.ProductId == 0) ? "Add Product" : "Edit Product")</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudForm Model="Product" @valid="HandleValidSubmit">
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Product Name" @bind-Value="Product.ProductName" Required="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Price" @bind-Value="Product.Price" Type="number" Required="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Stock Quantity" @bind-Value="Product.StockQuantity" Type="number" Required="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect Label="Category" @bind-Value="Product.CategoryId">
+                        @foreach (var category in Categories)
+                        {
+                            <MudSelectItem Value="category.CategoryId">@category.CategoryName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect Label="Supplier" @bind-Value="Product.SupplierId">
+                        @foreach (var supplier in Suppliers)
+                        {
+                            <MudSelectItem Value="supplier.SupplierId">@supplier.SupplierName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Label="Product Description" @bind-Value="Product.ProductDescription" Multiline="true" Rows="3" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.body1">Upload Product Image</MudText>
+                    <InputFile OnChange="OnFileChange" />
+                    @if (!string.IsNullOrEmpty(Product.ProductPhoto))
+                    {
+                        <img src="data:image/png;base64,@Product.ProductPhoto" alt="Product Image" width="100" height="100" />
+                    }
+                </MudItem>
+            </MudGrid>
+            <MudCardActions>
+                <MudButton Color="Color.Primary" Type="submit">Save</MudButton>
+                <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+            </MudCardActions>
+        </MudForm>
+    </MudCardContent>
+</MudCard>
 
 
 @code {
+    private ProductViewModel Product = new();
+    private List<Categories> Categories = new();
+    private List<Suppliers> Suppliers = new();
+    private IBrowserFile? UploadedFile;
 
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await CategoryService.GetAllCategories();
+        Suppliers = await SupplierService.GetAllSuppliers();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (UploadedFile != null)
+        {
+            Product.ProductPhoto = await ConvertFileToBase64(UploadedFile);
+        }
+
+        // if (Product.ProductId == 0)
+        //     await ProductService.AddProductAsync(Product);
+        // else
+        //     await ProductService.UpdateProductAsync(Product);
+
+        Navigation.NavigateTo("/products");
+    }
+
+    private void Cancel() => Navigation.NavigateTo("/products");
+
+    private async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using var stream = file.OpenReadStream();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            Product.ProductPhoto = Convert.ToBase64String(ms.ToArray());
+        }
+    }
+
+    private async Task<string> ConvertFileToBase64(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream();
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        return Convert.ToBase64String(ms.ToArray());
+    }
 }

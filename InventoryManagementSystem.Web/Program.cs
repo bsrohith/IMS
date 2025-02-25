@@ -5,6 +5,7 @@ using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
 using InventoryManagement.Repo.Repository;
 using InventoryManagementSystem.Web.Components;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,14 +17,17 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
-
+builder.Services.AddScoped<ICategoryService, CatergoryService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
-
+builder.Services.AddMudServices();
 //dapper db context
 builder.Services.AddSingleton<DapperDbContext>();
 

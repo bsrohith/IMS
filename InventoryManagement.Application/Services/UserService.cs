@@ -2,7 +2,10 @@
 using System.Text;
 using InventoryManagement.Application.Interfaces;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 
 namespace InventoryManagement.Application.Services
@@ -11,10 +14,13 @@ namespace InventoryManagement.Application.Services
     {
         private readonly IUserRepository _userRepository;
 
+
         public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
+
         }
+
 
         public async Task<(bool Success, string Message)> RegisterUserAsync(UserRegister model)
         {
@@ -64,6 +70,28 @@ namespace InventoryManagement.Application.Services
 
             return (true, "Registration successful. You can now log in.");
         }
+
+        public async Task<Users?> Verify(string email, string password)
+        {
+            try
+            {
+                string hashedPassword = HashPassword(password);
+                var user = await _userRepository.GetUserByEmailAndPasswordAsync(email, hashedPassword);
+
+                if (user == null || user.PasswordHash == null)
+                {
+                    return null;
+                }
+
+                return (user.PasswordHash == hashedPassword) ? user : null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Verify method: {ex.Message}");
+                return null;
+            }
+        }
+
 
         private string HashPassword(string password)
         {

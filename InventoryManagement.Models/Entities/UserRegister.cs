@@ -11,6 +11,7 @@ namespace InventoryManagement.Models.Entities
         public string Username { get; set; }
         public string Email { get; set; }
         public string UserAddress { get; set; }
+        public string UserRole { get; set; }
         public string City { get; set; }
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }

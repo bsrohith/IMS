@@ -10,5 +10,7 @@ namespace InventoryManagement.Application.Interfaces
     public interface IUserService
     {
         Task<(bool Success, string Message)> RegisterUserAsync(UserRegister register);
+
+        Task<Users?> Verify(string email, string password);
     }
 }

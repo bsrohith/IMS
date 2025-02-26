@@ -10,12 +10,12 @@ namespace InventoryManagement.Models.Entities
     public class Users
     {
         public int UserId { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string PasswordHash { get; set; }
-        public string UserAddress { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
-        public string UserRole { get; set; } = CommonStrings.User;
+        public string? Username { get; set; }
+        public string? Email { get; set; }
+        public string? PasswordHash { get; set; }
+        public string? UserAddress { get; set; } = string.Empty;
+        public string? City { get; set; } = string.Empty;
+        public string? UserRole { get; set; } = CommonStrings.User;
         public DateTime CreatedAt { get; set; }
     }
 }

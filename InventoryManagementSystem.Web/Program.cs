@@ -4,7 +4,11 @@ using InventoryManagement.Application.Services;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
 using InventoryManagement.Repo.Repository;
+using InventoryManagementSystem.Web.Auth;
 using InventoryManagementSystem.Web.Components;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -21,12 +26,12 @@ builder.Services.AddScoped<ICategoryService, CatergoryService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddMudServices();
@@ -35,6 +40,24 @@ builder.Services.AddServerSideBlazor()
 
 //dapper db context
 builder.Services.AddSingleton<DapperDbContext>();
+
+builder.Services.AddAuthenticationCore();
+
+
+
+
+// Add authentication services
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";  // Redirect here if not logged in
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/access-denied";  // Optional
+    });
+
+
+builder.Services.AddAuthorization();
+
 
 
 var app = builder.Build();
@@ -54,5 +77,10 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.UseMiddleware<AuthMiddleware>();
+
+app.UseAuthentication(); // Enable authentication middleware
+app.UseAuthorization(); // Enable authorization middleware
 
 app.Run();

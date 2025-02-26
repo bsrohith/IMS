@@ -1,0 +1,74 @@
+﻿@page "/"
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject IUserService UserService
+
+
+@inject NavigationManager nav
+
+<h1>Login</h1>
+<div class="row">
+    <div class="col-md-4">
+
+        <Alert @ref="alert" />
+
+        <section>
+            <EditForm Model="Input" method="post" OnValidSubmit="OnLogin" FormName="Login">
+                <DataAnnotationsValidator />
+                <hr />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Email" class="form-control" aria-required="true" />
+                    <label for="email" class="form-label">Email</label>
+                    <ValidationMessage For="() => Input.Email" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText type="password" @bind-Value="Input.PasswordHash" class="form-control" aria-required="true" />
+                    <label for="password" class="form-label">Password</label>
+                    <ValidationMessage For="() => Input.PasswordHash" class="text-danger" />
+                </div>
+                <div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Login</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code {
+    private Alert alert;
+
+    [SupplyParameterFromForm]
+    private LoginModel Input { get; set; } = new();
+
+    public async Task OnLogin()
+    {
+        var user = await UserService.Verify(Input.Email, Input.PasswordHash);
+        if (user is null)
+        {
+            //alert
+            alert.ShowFailed("Invalid Email or Password");
+            return;
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Email),
+            new Claim(ClaimTypes.Role, user.UserRole),
+            new Claim(ClaimTypes.Surname, user.Username)
+        };
+
+        var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimIdentity);
+        Guid key = Guid.NewGuid();
+        AuthMiddleware.Logins[key] = claimsPrincipal;
+
+        nav.NavigateTo($"/login?key={key}", true);
+        // nav.NavigateTo($"/login?key={key}&redirect=/products", true);
+
+    }
+
+
+}

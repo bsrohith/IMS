@@ -34,10 +34,24 @@ namespace InventoryManagement.Repo.Repository
         public async Task CreateUserAsync(Users user)
         {
             using var connection = _dbContext.CreateConnection();
-            //var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress) VALUES (@Username, @Email, @Password, @Role, @CreatedAt, @UserAddress); SELECT SCOPE_IDENTITY()";
-            var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress) VALUES (@Username, @Email, @Password, @Role, @CreatedAt, @UserAddress);";
+            var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress, City) VALUES (@Username, @Email, @PasswordHash, @UserRole, @CreatedAt, @UserAddress, @City);";
 
             await connection.ExecuteAsync(query, user);
         }
+
+        public async Task<Users> GetUserByUsernameAsync(string username)
+        {
+            using var connection = _dbContext.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<Users>("SELECT * FROM Users WHERE Username = @Username", new { Username = username });
+        }
+
+
+        public async Task<Users> GetUserByEmailAndPasswordAsync(string email, string passwordHash)
+        {
+            using var connection = _dbContext.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<Users>("SELECT * FROM Users WHERE Email = @Email AND PasswordHash = @PasswordHash",
+                new { Email = email, PasswordHash = passwordHash });
+        }
+
     }
 }

@@ -16,6 +16,12 @@ namespace InventoryManagement.Application.Services
         {
             _categoryreporitory= categoryrepository;
         }
+
+        public async Task CreateCategory(Categories categories)
+        {
+           await _categoryreporitory.CreateCategory(categories);
+        }
+
         public async Task<List<Categories>> GetAllCategories()
         {
             return (List<Categories>)await _categoryreporitory.GetAllCategories();

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Application.Interfaces;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Interfaces;
 
 namespace InventoryManagement.Application.Services
@@ -23,5 +24,25 @@ namespace InventoryManagement.Application.Services
 
         public async Task<bool> AddInventoryTransaction(InventoryTransactions transaction)
             => await _inventoryRepository.AddInventoryTransaction(transaction);
+
+        public async Task<List<InventoryTransactionViewModel>> GetInventoryTransactionDetails()
+        {
+            return (List<InventoryTransactionViewModel>)await _inventoryRepository.GetInventoryTransactionDetails();
+        }
+
+        public async Task<InventoryTransactionItemViewModel> GetInventoryTransactionById(int inventoryid)
+        {
+            return await _inventoryRepository.GetInventoryTransactionById(inventoryid);
+        }
+
+        public async Task AddInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel)
+        {
+            await _inventoryRepository.AddInventoryTransaction(inventoryTransactionQueryViewModel);
+        }
+
+        public async Task UpdateInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel)
+        {
+            await _inventoryRepository.UpdateInventoryTransaction(inventoryTransactionQueryViewModel);
+        }
     }
 }

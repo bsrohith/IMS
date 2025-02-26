@@ -10,5 +10,6 @@ namespace InventoryManagement.Repo.Interfaces
     public interface ICategoryRepository
     {
         Task<IEnumerable<Categories>> GetAllCategories();
+        Task CreateCategory(Categories categories);
     }
 }

@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace InventoryManagement.Application.Interfaces
 {
-    public interface ICategoryService
+    public interface IProductDetailService
     {
-        Task<List<Categories>> GetAllCategories();
-        Task CreateCategory(Categories categories);
+        Task AddProductDetailAsync(ProductDetails productdetails);
+        Task UpdateProductDetailAsync(ProductDetails productdetails);
+        Task DeleteProductDetailAsync(int id);
     }
 }

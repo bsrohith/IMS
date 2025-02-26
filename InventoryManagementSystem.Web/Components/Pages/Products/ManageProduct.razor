@@ -35,6 +35,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="category" class="form-label">Category</label>
                     <select id="category" class="form-select" @bind="Product.CategoryId">
+                        <option value="">-- Select Category --</option>
                         @foreach (var category in Categories)
                         {
                             <option value="@category.CategoryId">@category.CategoryName</option>
@@ -45,6 +46,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="supplier" class="form-label">Supplier</label>
                     <select id="supplier" class="form-select" @bind="Product.SupplierId">
+                        <option value="">-- Select Supplier --</option>
                         @foreach (var supplier in Suppliers)
                         {
                             <option value="@supplier.SupplierId">@supplier.SupplierName</option>
@@ -88,16 +90,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // if (Id.HasValue && Id > 0)
-        // {
-        //     // Fetch the product for editing
-        //     Product = await ProductService.GetProductByIdAsync(Id.Value);
-        // }
-        // else
-        // {
-        //     // Initialize a new product for adding
-        //     Product = new ProductViewModel();
-        // }
+        if (Id.HasValue && Id > 0)
+        {
+            // Fetch the product for editing
+            Product = await ProductService.GetProductViewModeByIdAsync(Id.Value);
+        }
+        else
+        {
+            Product = new ProductViewModel();
+        }
         Categories = await CategoryService.GetAllCategories();
         Suppliers = await SupplierService.GetAllSuppliers();
     }
@@ -109,11 +110,66 @@
             Product.ProductPhoto = await ConvertFileToBase64(UploadedFile);
         }
 
-        // if (Product.ProductId == 0)
-        //     await ProductService.AddProductAsync(Product);
-        // else
-        //     await ProductService.UpdateProductAsync(Product);
+        if (Product.ProductId == 0)
+        {
+            var id = await ProductService.AddProductAsync(new Products()
+                {
+                    ProductName = Product.ProductName,
+                    Price = Product.Price,
+                    CategoryId = Product.CategoryId,
+                    StockQuantity = Product.StockQuantity,
+                    CreatedAt = DateTime.Now,
+                    SupplierId = Product.SupplierId
+                });
 
+            await ProductDetailService.AddProductDetailAsync(new ProductDetails()
+                {
+                    ProductDescription = Product.ProductDescription,
+                    ProductPhoto = Product.ProductPhoto,
+                    ProductId = id
+                });
+
+            //Add Inventory
+            await InventoryService.AddInventoryTransaction(new InventoryTransactionQueryViewModel()
+                {
+                    ProductId = id,
+                    Quantity = Product.StockQuantity,
+                    TransactionType = CommonStrings.TransactionAdded,
+                    UserId = new Random().Next(1, 10), //Change it to actaul user
+                    TransactionLog = $"{Product.ProductName} has been {CommonStrings.TransactionAdded} with {Product.StockQuantity} quantity."
+                });
+        }
+        else
+        {
+            await ProductService.UpdateProductAsync(new Products()
+                {
+                    ProductId = Product.ProductId,
+                    ProductName = Product.ProductName,
+                    Price = Product.Price,
+                    CategoryId = Product.CategoryId,
+                    StockQuantity = Product.StockQuantity,
+                    CreatedAt = DateTime.Now,
+                    SupplierId = Product.SupplierId
+                });
+
+            await ProductDetailService.UpdateProductDetailAsync(new ProductDetails()
+                {
+                    ProductId = Product.ProductId,
+                    ProductDescription = Product.ProductDescription,
+                    ProductPhoto = Product.ProductPhoto,
+                });
+
+            //Update Inventory
+            await InventoryService.UpdateInventoryTransaction(new InventoryTransactionQueryViewModel()
+                {
+                    ProductId = Product.ProductId,
+                    Quantity = Product.StockQuantity,
+                    NewQuantity = Product.StockQuantity,
+                    TransactionType = CommonStrings.TransactionUpdated,
+                    UserId = new Random().Next(1, 10), //Change it to actaul user
+                    TransactionLog = $"{Product.ProductName} has been {CommonStrings.TransactionUpdated} with {Product.StockQuantity} quantity."
+                });
+        }
         Navigation.NavigateTo("/products");
     }
 
@@ -124,16 +180,20 @@
         var file = e.File;
         if (file != null)
         {
-            using var stream = file.OpenReadStream();
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            Product.ProductPhoto = Convert.ToBase64String(ms.ToArray());
+            var buffer = new byte[file.Size];
+            using (var stream = file.OpenReadStream())
+            {
+                await stream.ReadAsync(buffer, 0, (int)file.Size);
+            }
+            Product.ProductPhoto = Convert.ToBase64String(buffer);
         }
     }
 
     private async Task<string> ConvertFileToBase64(IBrowserFile file)
     {
         using var stream = file.OpenReadStream();
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.Position = 0;
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
         return Convert.ToBase64String(ms.ToArray());

@@ -1,0 +1,144 @@
+﻿@page "/productlist"
+@rendermode InteractiveServer
+
+<!-- Filters Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <input type="text" class="form-control" placeholder="Search products..." @bind="searchQuery" @bind:event="oninput">
+    </div>
+    <div class="col-md-1">
+        <button class="btn btn-primary" @onclick="SearchProduct">Search</button>
+    </div>
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" @onchange="FilterByCategory">
+            <option value="0">All Categories</option>
+            @foreach (var category in Categories)
+            {
+                <option value="@category.CategoryId">@category.CategoryName</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div class="row">
+    @if (filteredProducts.Any())
+    {
+        <div class="col-md-12">
+            <div class="row">
+                @foreach (var product in filteredProducts)
+                {
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <img src="data:image/png;base64,@product.ProductPhoto" class="card-img-top" alt="@product.ProductName"
+                            onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
+                            <div class="card-body">
+                                <h5 class="card-title">@product.ProductName</h5>
+                                <p class="card-text text-success">$@product.Price</p>
+                                <p class="card-text small">@product.ProductDescription</p>
+                                <button class="btn btn-primary" @onclick="() => ShowDetails(product)">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="col-12">
+            <p class="text-danger">No products found.</p>
+        </div>
+    }
+</div>
+
+<!-- Product Detail Modal -->
+@if (isDetailModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@selectedProduct?.ProductName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDetails"></button>
+                </div>
+                <div class="modal-body">
+                    @if (selectedProduct != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="data:image/png;base64,@selectedProduct.ProductPhoto" class="img-fluid rounded" alt="@selectedProduct.ProductName"
+                                onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
+                            </div>
+                            <div class="col-md-8">
+                                <p class="text-muted">@selectedProduct.ProductDescription</p>
+                                <h5 class="text-success">$@selectedProduct.Price</h5>
+                                <p><strong>Stock:</strong> @selectedProduct.StockQuantity</p>
+                                <p><strong>Category:</strong> @Categories.FirstOrDefault(cat => cat.CategoryId.Equals(selectedProduct.CategoryId)).CategoryName</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseDetails">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private List<ProductViewModel> products = new();
+    private List<ProductViewModel> filteredProducts = new();
+    private List<Categories> Categories = new();
+
+    private string searchQuery = string.Empty;
+    private int selectedCategory;
+    private int maxPrice = 1000;
+    private bool inStockOnly = false;
+
+    private bool isDetailModalVisible = false;
+    private ProductViewModel selectedProduct;
+
+    private void FilterByCategory(ChangeEventArgs e)
+    {
+        selectedCategory = Convert.ToInt32(e.Value);
+        filteredProducts = new List<ProductViewModel>(FilterProducts());
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        Categories = await CategoryService.GetAllCategories();
+        filteredProducts = products;
+    }
+
+    private void SearchProduct()
+    {
+        filteredProducts = new List<ProductViewModel>(FilterProducts());
+        StateHasChanged();
+    }
+
+    private List<ProductViewModel> FilterProducts()
+    {
+        return products
+            .Where(p => (string.IsNullOrEmpty(searchQuery) || p.ProductName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+                        && (selectedCategory == 0 || p.CategoryId == selectedCategory))
+            .ToList();
+    }
+
+
+    private void ShowDetails(ProductViewModel product)
+    {
+        selectedProduct = product;
+        isDetailModalVisible = true;
+    }
+
+    private void CloseDetails()
+    {
+        isDetailModalVisible = false;
+    }
+}

@@ -24,5 +24,13 @@ namespace InventoryManagement.Repo.Repository
             using var connection = _dbContext.CreateConnection();
             return await connection.QueryAsync<Categories>("SELECT * FROM Categories");
         }
+
+        public async Task CreateCategory(Categories categories)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = "INSERT INTO Categories (CategoryName) VALUES (@CategoryName);";
+
+            await connection.ExecuteAsync(query, categories);
+        }
     }
 }

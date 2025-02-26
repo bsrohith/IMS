@@ -1,7 +1,293 @@
-﻿@page "/settings"
+﻿@page "/admin/settings"
 @rendermode InteractiveServer
-<h3>Settings</h3>
+
+<h2 class="mb-4">Admin Dashboard</h2>
+
+@* <div class="row">
+    <!-- Category Widget -->
+    <div class="col-md-4">
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <h5 class="card-title">Categories</h5>
+                <button class="btn btn-primary mb-3" @onclick="OpenAddCategoryModal">+ Add Category</button>
+                <ul class="list-group">
+                    @foreach (var category in PagedCategories)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @category.CategoryName
+                        </li>
+                    }
+                </ul>
+                <div class="mt-3 d-flex justify-content-between">
+                    <button class="btn btn-secondary btn-sm" @onclick="PrevPageCategories" disabled="@(CategoryPage == 1)">Previous</button>
+                    <span>Page @CategoryPage of @TotalCategoryPages</span>
+                    <button class="btn btn-secondary btn-sm" @onclick="NextPageCategories" disabled="@(CategoryPage == TotalCategoryPages)">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Widget -->
+    <div class="col-md-4">
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <ul class="list-group">
+                    @foreach (var user in PagedUsers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @user.Username
+                            <button class="btn btn-sm btn-outline-info" @onclick="() => OpenUserModal(user)">View</button>
+                        </li>
+                    }
+                </ul>
+                <div class="mt-3 d-flex justify-content-between">
+                    <button class="btn btn-secondary btn-sm" @onclick="PrevPageUsers" disabled="@(UserPage == 1)">Previous</button>
+                    <span>Page @UserPage of @TotalUserPages</span>
+                    <button class="btn btn-secondary btn-sm" @onclick="NextPageUsers" disabled="@(UserPage == TotalUserPages)">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suppliers Widget -->
+    <div class="col-md-4">
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <h5 class="card-title">Suppliers</h5>
+                <ul class="list-group">
+                    @foreach (var supplier in PagedSuppliers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @supplier.SupplierName
+                            <button class="btn btn-sm btn-outline-info" @onclick="() => OpenSupplierModal(supplier)">View</button>
+                        </li>
+                    }
+                </ul>
+                <div class="mt-3 d-flex justify-content-between">
+                    <button class="btn btn-secondary btn-sm" @onclick="PrevPageSuppliers" disabled="@(SupplierPage == 1)">Previous</button>
+                    <span>Page @SupplierPage of @TotalSupplierPages</span>
+                    <button class="btn btn-secondary btn-sm" @onclick="NextPageSuppliers" disabled="@(SupplierPage == TotalSupplierPages)">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> *@
+
+<div class="row">
+    <!-- Categories Widget -->
+    <div class="col-md-4 d-flex">
+        <div class="card shadow-lg w-100 h-100 d-flex flex-column">
+            <div class="card-body">
+                <h5 class="card-title">Categories</h5>
+                <button class="btn btn-primary mb-3" @onclick="OpenAddCategoryModal">+ Add Category</button>
+                <ul class="list-group">
+                    @foreach (var category in PagedCategories)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @category.CategoryName
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card-footer d-flex justify-content-between mt-auto">
+                <button class="btn btn-secondary btn-sm" @onclick="PrevPageCategories" disabled="@(CategoryPage == 1)">Previous</button>
+                <span>Page @CategoryPage of @TotalCategoryPages</span>
+                <button class="btn btn-secondary btn-sm" @onclick="NextPageCategories" disabled="@(CategoryPage == TotalCategoryPages)">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Widget -->
+    <div class="col-md-4 d-flex">
+        <div class="card shadow-lg w-100 h-100 d-flex flex-column">
+            <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <ul class="list-group">
+                    @foreach (var user in PagedUsers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @user.Username
+                            <button class="btn btn-sm btn-outline-info" @onclick="() => OpenUserModal(user)">View</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card-footer d-flex justify-content-between mt-auto">
+                <button class="btn btn-secondary btn-sm" @onclick="PrevPageUsers" disabled="@(UserPage == 1)">Previous</button>
+                <span>Page @UserPage of @TotalUserPages</span>
+                <button class="btn btn-secondary btn-sm" @onclick="NextPageUsers" disabled="@(UserPage == TotalUserPages)">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suppliers Widget -->
+    <div class="col-md-4 d-flex">
+        <div class="card shadow-lg w-100 h-100 d-flex flex-column">
+            <div class="card-body">
+                <h5 class="card-title">Suppliers</h5>
+                <ul class="list-group">
+                    @foreach (var supplier in PagedSuppliers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @supplier.SupplierName
+                            <button class="btn btn-sm btn-outline-info" @onclick="() => OpenSupplierModal(supplier)">View</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="card-footer d-flex justify-content-between mt-auto">
+                <button class="btn btn-secondary btn-sm" @onclick="PrevPageSuppliers" disabled="@(SupplierPage == 1)">Previous</button>
+                <span>Page @SupplierPage of @TotalSupplierPages</span>
+                <button class="btn btn-secondary btn-sm" @onclick="NextPageSuppliers" disabled="@(SupplierPage == TotalSupplierPages)">Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Category Modal -->
+@if (ShowAddCategoryModal)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Category</h5>
+                    <button type="button" class="btn-close" @onclick="CloseAddCategoryModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" placeholder="Category Name" @bind="NewCategoryName" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseAddCategoryModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="AddCategory">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- User Details Modal -->
+@if (ShowUserModal)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseUserModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Name:</strong> @SelectedUser?.Username</p>
+                    <p><strong>Email:</strong> @SelectedUser?.Email</p>
+                    <p><strong>Role:</strong> @SelectedUser?.UserRole</p>
+                    <p><strong>Address:</strong> @SelectedUser?.UserAddress</p>
+                    <p><strong>City:</strong> @SelectedUser?.City</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseUserModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Supplier Details Modal -->
+@if (ShowSupplierModal)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Supplier Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseSupplierModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Name:</strong> @SelectedSupplier?.SupplierName</p>
+                    <p><strong>Contact:</strong> @SelectedSupplier?.PhoneNumber</p>
+                    <p><strong>Email:</strong> @SelectedSupplier?.ContactEmail</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseSupplierModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
 
 @code {
+    private List<Categories> Categories = new();
+    private List<Users> Users = new();
+    private List<Suppliers> Suppliers = new();
 
+    private int CategoryPage = 1;
+    private int UserPage = 1;
+    private int SupplierPage = 1;
+    private int PageSize = 6;
+    private int TotalCategoryPages => (int)Math.Ceiling((double)Categories.Count / PageSize);
+    private int TotalUserPages => (int)Math.Ceiling((double)Users.Count / PageSize);
+    private int TotalSupplierPages => (int)Math.Ceiling((double)Suppliers.Count / PageSize);
+
+    private List<Categories> PagedCategories => Categories.Skip((CategoryPage - 1) * PageSize).Take(PageSize).ToList();
+    private List<Users> PagedUsers => Users.Skip((UserPage - 1) * PageSize).Take(PageSize).ToList();
+    private List<Suppliers> PagedSuppliers => Suppliers.Skip((SupplierPage - 1) * PageSize).Take(PageSize).ToList();
+
+    private bool ShowAddCategoryModal = false;
+    private bool ShowUserModal = false;
+    private bool ShowSupplierModal = false;
+
+    private string NewCategoryName = "";
+    private Users? SelectedUser;
+    private Suppliers? SelectedSupplier;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await CategoryService.GetAllCategories();
+        Users = await UserService.GetAllUsers();
+        Suppliers = await SupplierService.GetAllSuppliers();
+    }
+
+    private void OpenAddCategoryModal() => ShowAddCategoryModal = true;
+    private void CloseAddCategoryModal() => ShowAddCategoryModal = false;
+
+    private async Task AddCategory()
+    {
+        if (!string.IsNullOrWhiteSpace(NewCategoryName))
+        {
+            await CategoryService.CreateCategory(new Categories { CategoryName = NewCategoryName });
+            Categories = await CategoryService.GetAllCategories();
+            NewCategoryName = "";
+            ShowAddCategoryModal = false;
+        }
+    }
+
+    private void OpenUserModal(Users user)
+    {
+        SelectedUser = user;
+        ShowUserModal = true;
+    }
+
+    private void CloseUserModal() => ShowUserModal = false;
+
+    private void OpenSupplierModal(Suppliers supplier)
+    {
+        SelectedSupplier = supplier;
+        ShowSupplierModal = true;
+    }
+
+    private void CloseSupplierModal() => ShowSupplierModal = false;
+
+    private void PrevPageUsers() { if (UserPage > 1) UserPage--; }
+    private void NextPageUsers() { if (UserPage < TotalUserPages) UserPage++; }
+
+    private void PrevPageSuppliers() { if (SupplierPage > 1) SupplierPage--; }
+    private void NextPageSuppliers() { if (SupplierPage < TotalSupplierPages) SupplierPage++; }
+
+    private void PrevPageCategories() { if (CategoryPage > 1) CategoryPage--; }
+    private void NextPageCategories() { if (CategoryPage < TotalCategoryPages) CategoryPage++; }
 }
+

@@ -25,6 +25,7 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ICategoryService, CatergoryService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductDetailService, ProductDetailService>();
 
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -33,6 +34,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductDetailRepository, ProductDetailRepository>();
+
 
 builder.Services.AddMudServices();
 builder.Services.AddServerSideBlazor()

@@ -11,7 +11,6 @@
 @using InventoryManagement.Application.Interfaces
 @using InventoryManagement.Models.Entities
 @using InventoryManagement.Models.ViewModel
-@using MudBlazor
 @inject NavigationManager Navigation
 @inject IOrderService OrderService
 @inject IProductService ProductService
@@ -19,5 +18,10 @@
 @inject ISupplierService SupplierService
 @using System.Collections.Generic
 @using System.Linq
+@inject IProductDetailService ProductDetailService
+@using System.Globalization
+@inject IInventoryService InventoryService
+@using InventoryManagement.Common
+@inject IUserService UserService
 @using InventoryManagementSystem.Web.Components.Shared
 @using InventoryManagementSystem.Web.Auth

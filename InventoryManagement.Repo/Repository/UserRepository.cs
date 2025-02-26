@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,18 @@ namespace InventoryManagement.Repo.Repository
             var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress, City) VALUES (@Username, @Email, @PasswordHash, @UserRole, @CreatedAt, @UserAddress, @City);";
 
             await connection.ExecuteAsync(query, user);
+        }
+
+        public async Task<IEnumerable<Users>> GetAllUsers()
+        {
+            using var connection = _dbContext.CreateConnection();
+            return await connection.QueryAsync<Users>("SELECT * FROM USERS");
+        }
+
+        public async Task<Users> GetUserById(int id)
+        {
+            using var connection = _dbContext.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<Users>("SELECT * FROM USERS WHERE UserId = @UserId", new { UserId = id });
         }
 
         public async Task<Users> GetUserByUsernameAsync(string username)

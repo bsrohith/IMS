@@ -128,13 +128,22 @@
                     ProductPhoto = Product.ProductPhoto,
                     ProductId = id
                 });
-                //Update Inventory
 
+            //Add Inventory
+            await InventoryService.AddInventoryTransaction(new InventoryTransactionQueryViewModel()
+                {
+                    ProductId = id,
+                    Quantity = Product.StockQuantity,
+                    TransactionType = CommonStrings.TransactionAdded,
+                    UserId = new Random().Next(1, 10), //Change it to actaul user
+                    TransactionLog = $"{Product.ProductName} has been {CommonStrings.TransactionAdded} with {Product.StockQuantity} quantity."
+                });
         }
         else
         {
             await ProductService.UpdateProductAsync(new Products()
                 {
+                    ProductId = Product.ProductId,
                     ProductName = Product.ProductName,
                     Price = Product.Price,
                     CategoryId = Product.CategoryId,
@@ -143,12 +152,23 @@
                     SupplierId = Product.SupplierId
                 });
 
-            await ProductDetailService.AddProductDetailAsync(new ProductDetails()
+            await ProductDetailService.UpdateProductDetailAsync(new ProductDetails()
                 {
+                    ProductId = Product.ProductId,
                     ProductDescription = Product.ProductDescription,
                     ProductPhoto = Product.ProductPhoto,
                 });
+
             //Update Inventory
+            await InventoryService.UpdateInventoryTransaction(new InventoryTransactionQueryViewModel()
+                {
+                    ProductId = Product.ProductId,
+                    Quantity = Product.StockQuantity,
+                    NewQuantity = Product.StockQuantity,
+                    TransactionType = CommonStrings.TransactionUpdated,
+                    UserId = new Random().Next(1, 10), //Change it to actaul user
+                    TransactionLog = $"{Product.ProductName} has been {CommonStrings.TransactionUpdated} with {Product.StockQuantity} quantity."
+                });
         }
         Navigation.NavigateTo("/products");
     }
@@ -161,11 +181,11 @@
         if (file != null)
         {
             var buffer = new byte[file.Size];
-            using (var stream = file.OpenReadStream()) 
+            using (var stream = file.OpenReadStream())
             {
                 await stream.ReadAsync(buffer, 0, (int)file.Size);
             }
-            Product.ProductPhoto = Convert.ToBase64String(buffer); 
+            Product.ProductPhoto = Convert.ToBase64String(buffer);
         }
     }
 

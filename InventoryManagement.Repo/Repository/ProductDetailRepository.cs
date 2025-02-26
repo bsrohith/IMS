@@ -29,7 +29,7 @@ namespace InventoryManagement.Repo.Repository
         public async Task UpdateProductDetailAsync(ProductDetails productDetail)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = "UPDATE ProductDetails SET ProductDescription=@ProductDescription, ProductPhoto=@ProductPhoto WHERE ProductDetailId=@ProductDetailId";
+            var query = "UPDATE ProductDetails SET ProductDescription=@ProductDescription, ProductPhoto=@ProductPhoto WHERE ProductId=@ProductId";
             await connection.ExecuteAsync(query, productDetail);
         }
 

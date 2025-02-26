@@ -14,5 +14,7 @@ namespace InventoryManagement.Application.Interfaces
         Task<bool> AddInventoryTransaction(InventoryTransactions transaction);
         Task<List<InventoryTransactionViewModel>> GetInventoryTransactionDetails();
         Task<InventoryTransactionItemViewModel> GetInventoryTransactionById(int inventoryid);
+        Task AddInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel);
+        Task UpdateInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel);
     }
 }

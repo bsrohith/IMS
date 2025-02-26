@@ -5,7 +5,7 @@
 {
     <div class="text-center mt-5">
         <h4 class="text-danger">Transaction not found!</h4>
-        <button class="btn btn-secondary">Back</button>
+        <button class="btn btn-secondary" @onclick="() => GoBack()">Back</button>
     </div>
 }
 else
@@ -47,7 +47,7 @@ else
                                 <td>
                                     <span class="badge @(GetBadgeClass(item.TransactionType))">@item.TransactionType</span>
                                 </td>
-                                <td>@item.TransactionDate.ToString("yyyy-MM-dd")</td>
+                                <td>@item.TransactionDate</td>
                                 <td>@item.Quantity</td>
                                 <td>@item.UserName</td>
                                 <td>@item.TransactionsItemLog</td>
@@ -65,7 +65,7 @@ else
             </table>
         </div>
 
-        <button class="btn btn-secondary mt-3">Back</button>
+        <button class="btn btn-secondary mt-3" @onclick="() => GoBack()">Back</button>
     </div>
 }
 
@@ -88,5 +88,10 @@ else
             "Updated" => "bg-warning",
             _ => "bg-secondary"
         };
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/inventory");
     }
 }

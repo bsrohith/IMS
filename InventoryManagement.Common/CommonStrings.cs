@@ -1,6 +1,6 @@
 ﻿namespace InventoryManagement.Common
 {
-    public class CommonStrings
+    public static class CommonStrings
     {
         //Roles
         public const string User = "User";
@@ -15,10 +15,10 @@
         public const string OrderCreated = "N";
 
         //Transaction Type
-        public const string TransactionAdd = "A";
-        public const string TransactionUpdate = "U";
-        public const string TransactionSold = "S";
-        public const string TransactionDeleted = "D";
+        public const string TransactionAdded = "Added";
+        public const string TransactionUpdated = "Updated";
+        public const string TransactionSold = "Sold";
+        public const string TransactionDeleted = "Deleted";
 
         //Connection String
         public const string ConnectionString = @"Server=(localdb)\\MSSQLLocalDB;Database=ims;Trusted_Connection=True;MultipleActiveResultSets=True";

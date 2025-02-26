@@ -34,5 +34,15 @@ namespace InventoryManagement.Application.Services
         {
             return await _inventoryRepository.GetInventoryTransactionById(inventoryid);
         }
+
+        public async Task AddInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel)
+        {
+            await _inventoryRepository.AddInventoryTransaction(inventoryTransactionQueryViewModel);
+        }
+
+        public async Task UpdateInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel)
+        {
+            await _inventoryRepository.UpdateInventoryTransaction(inventoryTransactionQueryViewModel);
+        }
     }
 }

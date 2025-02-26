@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,8 +52,7 @@ namespace InventoryManagement.Repo.Repository
         {
             using var connection = _dbContext.CreateConnection();
             var sql = @"SELECT it.InventoryTransactionsId,it.ProductId, it.TotalQuantity,
-                        CONVERT(DATE, it.LastModifiedDate) AS LastModifiedDate, p.ProductName, c.CategoryName AS Category,
-                        ISNULL(pd.ProductDescription, '') AS ProductDescription,
+                        it.LastModifiedDate, p.ProductName, c.CategoryName AS Category,ISNULL(pd.ProductDescription, '') AS ProductDescription,
                         ISNULL(pd.ProductPhoto, '') AS ProductPhoto, iti.InventoryTranactionItemsId, iti.TransactionType,
                         iti.TransactionDate,iti.Quantity,ISNULL(iti.TransactionsItemLog, '') AS TransactionsItemLog, u.UserName
                         FROM InventoryTransactions it
@@ -62,7 +62,7 @@ namespace InventoryManagement.Repo.Repository
                         JOIN Categories c ON p.CategoryId = c.CategoryId
                         JOIN Users u ON iti.UserId = u.UserId
                         WHERE it.InventoryTransactionsId = @InventoryTransactionsId
-                        ORDER BY it.LastModifiedDate DESC, iti.TransactionDate DESC;";
+                        ORDER BY it.LastModifiedDate DESC, iti.TransactionDate ASC;";
 
             var transactionDictionary = new Dictionary<int, InventoryTransactionItemViewModel>();
 
@@ -72,7 +72,7 @@ namespace InventoryManagement.Repo.Repository
                     if (!transactionDictionary.TryGetValue(transaction.InventoryTransactionsId, out var transactionEntry))
                     {
                         transactionEntry = transaction;
-                        transactionEntry.TransactionItems = new List<TransactionItemDetail>();
+                        transactionEntry.TransactionItems = new List<TransactionItemDetail>(0);
                         transactionDictionary.Add(transaction.InventoryTransactionsId, transactionEntry);
                     }
 
@@ -84,6 +84,38 @@ namespace InventoryManagement.Repo.Repository
             );
 
             return transactionDictionary.Values.FirstOrDefault();
+        }
+
+        public async Task AddInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel)
+        {
+            using var connection = _dbContext.CreateConnection();
+
+            var parameters = new
+            {
+                inventoryTransactionQueryViewModel.ProductId,
+                inventoryTransactionQueryViewModel.Quantity,
+                inventoryTransactionQueryViewModel.UserId,
+                inventoryTransactionQueryViewModel.TransactionType,
+                inventoryTransactionQueryViewModel.TransactionLog
+            };
+
+            await connection.ExecuteAsync("sp_AddInventoryTransactionDetails", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task UpdateInventoryTransaction(InventoryTransactionQueryViewModel inventoryTransactionQueryViewModel)
+        {
+            using var connection = _dbContext.CreateConnection();
+
+            var parameters = new
+            {
+                inventoryTransactionQueryViewModel.ProductId,
+                inventoryTransactionQueryViewModel.NewQuantity,
+                inventoryTransactionQueryViewModel.UserId,
+                inventoryTransactionQueryViewModel.TransactionType,
+                inventoryTransactionQueryViewModel.TransactionLog
+            };
+
+            await connection.ExecuteAsync("sp_UpdateInventoryTransactionDetails", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }

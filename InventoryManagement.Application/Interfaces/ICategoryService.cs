@@ -10,5 +10,6 @@ namespace InventoryManagement.Application.Interfaces
     public interface ICategoryService
     {
         Task<List<Categories>> GetAllCategories();
+        Task CreateCategory(Categories categories);
     }
 }

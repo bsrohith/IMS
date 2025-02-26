@@ -80,5 +80,16 @@ namespace InventoryManagement.Application.Services
                 return builder.ToString();
             }
         }
+
+        public async Task<List<Users>> GetAllUsers()
+        {
+            return (List<Users>)await _userRepository.GetAllUsers();
+        }
+
+        public async Task<Users> GetUserById(int id)
+        {
+            return await _userRepository.GetUserById(id);
+        }
+
     }
 }

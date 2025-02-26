@@ -1,7 +1,74 @@
 ﻿@page "/profile"
-@rendermode InteractiveServer
-<h3>Profile</h3>
+@using InventoryManagement.Application.Services
+@inject IUserService UserService
+
+<h3>User Profile</h3>
+
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (user == null)
+{
+    <div class="alert alert-danger">
+        Failed to load user profile. Please try again or contact support.
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <h5>Your Profile Information</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">User ID:</dt>
+                <dd class="col-sm-9">@user.UserId</dd>
+
+                <dt class="col-sm-3">Username:</dt>
+                <dd class="col-sm-9">@user.Username</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@user.Email</dd>
+
+                <dt class="col-sm-3">Address:</dt>
+                <dd class="col-sm-9">@(string.IsNullOrEmpty(user.UserAddress) ? "Not provided" : user.UserAddress)</dd>
+
+                <dt class="col-sm-3">City:</dt>
+                <dd class="col-sm-9">@(string.IsNullOrEmpty(user.City) ? "Not provided" : user.City)</dd>
+
+                <dt class="col-sm-3">Role:</dt>
+                <dd class="col-sm-9">@user.UserRole</dd>
+
+                <dt class="col-sm-3">Account Created:</dt>
+                <dd class="col-sm-9">@user.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+            </dl>
+        </div>
+    </div>
+}
 
 @code {
+    private Users user;
+    private bool isLoading = true;
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            user = await UserService.GetCurrentUserAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user profile: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }

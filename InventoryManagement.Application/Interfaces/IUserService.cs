@@ -14,5 +14,7 @@ namespace InventoryManagement.Application.Interfaces
         Task<Users> GetUserById(int id);
 
         Task<Users?> Verify(string email, string password);
+
+        Task<Users> GetCurrentUserAsync();
     }
 }

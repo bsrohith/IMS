@@ -1,10 +1,13 @@
-﻿using System.Security.Cryptography;
+﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using InventoryManagement.Application.Interfaces;
 using InventoryManagement.Models.Entities;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 
@@ -13,12 +16,12 @@ namespace InventoryManagement.Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
         {
-            _userRepository = userRepository;
-
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
 
@@ -119,5 +122,30 @@ namespace InventoryManagement.Application.Services
             return await _userRepository.GetUserById(id);
         }
 
+
+        public async Task<Users> GetCurrentUserAsync()
+        {
+            // Get the current HttpContext's ClaimsPrincipal
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            // Check if user is authenticated
+            if (user?.Identity?.IsAuthenticated != true)
+            {
+                return null;
+            }
+
+            var unameClaim = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname);
+            string username = unameClaim?.Value;
+
+            if (string.IsNullOrEmpty(username))
+            {
+                return null;
+            }
+
+            // Query the database to get the full user information
+            return await _userRepository.GetUserByUsernameAsync(username);
+        }
     }
+
 }
+

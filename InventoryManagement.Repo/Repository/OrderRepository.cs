@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -50,7 +51,7 @@ namespace InventoryManagement.Repo.Repository
         }
 
 
-        public async Task<IEnumerable<Orders>> GetOrdersByUserIdAsync(int userId)
+        public async Task<IEnumerable<OrderView>> GetOrdersByUserIdAsync(int userId)
         {
             const string sql = @"
                 SELECT o.OrderId, o.UserId, o.OrderDate, o.TotalAmount, o.OrderStatus,
@@ -61,7 +62,7 @@ namespace InventoryManagement.Repo.Repository
                 ORDER BY o.OrderDate DESC";
 
             using var connection = _dbContext.CreateConnection(); 
-            return await connection.QueryAsync<Orders>(sql, new { UserId = userId });
+            return await connection.QueryAsync<OrderView>(sql, new { UserId = userId });
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@page "/orders"
 @rendermode InteractiveServer
 @inject IOrderService OrderService
-
+@inject IJSRuntime JSRuntime
 
 <h3>My Orders</h3>
 
@@ -20,8 +20,8 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Order ID</th>
-                <th>Date</th>
+                <th>Username</th>
+                <th>Order Date</th>
                 <th>Total</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -31,12 +31,12 @@ else
             @foreach (var order in orders)
             {
                 <tr>
-                    <td>@order.OrderId</td>
+                    <td>@order.Username</td>
                     <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
                     <td>$@order.TotalAmount.ToString("F2")</td>
                     <td>@order.OrderStatus</td>
                     <td>
-                        <a href="/order-details/@order.OrderId" class="btn btn-sm btn-primary">Details</a>
+                        <button @onclick="() => ShowOrderDetails(order)" class="btn btn-sm btn-primary">Details</button>
                     </td>
                 </tr>
             }
@@ -44,26 +44,83 @@ else
     </table>
 }
 
+<!-- Order Details Modal -->
+@if (selectedOrder != null)
+{
+    <div class="modal fade show" style="display: block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Order Information</h6>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <th>Order ID:</th>
+                                        <td>@selectedOrder.OrderId</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>Order Date:</th>
+                                        <td>@selectedOrder.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status:</th>
+                                        <td>@selectedOrder.OrderStatus</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Amount:</th>
+                                        <td>$@selectedOrder.TotalAmount.ToString("F2")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                     
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
-    private List<Orders> orders = new();
+    private List<OrderView> orders = new();
     private bool isLoading = true;
+    private OrderView selectedOrder;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             isLoading = true;
-            // Use the simplified method that handles user retrieval internally
             orders = (await OrderService.GetOrdersForCurrentUserAsync()).ToList();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading orders: {ex.Message}");
-            // You could add error handling here
         }
         finally
         {
             isLoading = false;
         }
+    }
+
+    private void ShowOrderDetails(OrderView order)
+    {
+        selectedOrder = order;
+    }
+
+    private void CloseModal()
+    {
+        selectedOrder = null;
     }
 }

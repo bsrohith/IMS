@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 
 namespace InventoryManagement.Repo.Interfaces
 {
@@ -14,7 +15,7 @@ namespace InventoryManagement.Repo.Interfaces
         Task<int> CreateOrder(Orders order);
         Task<bool> UpdateOrderStatus(int orderId, string status);
 
-        Task<IEnumerable<Orders>> GetOrdersByUserIdAsync(int userId);
+        Task<IEnumerable<OrderView>> GetOrdersByUserIdAsync(int userId);
     }
    
 }

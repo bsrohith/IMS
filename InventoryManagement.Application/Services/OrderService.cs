@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Application.Interfaces;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Interfaces;
 using Microsoft.AspNetCore.Http;
 
@@ -31,7 +32,7 @@ namespace InventoryManagement.Application.Services
             => await _orderRepository.UpdateOrderStatus(orderId, status);
 
 
-        public async Task<IEnumerable<Orders>> GetOrdersForCurrentUserAsync()
+        public async Task<IEnumerable<OrderView>> GetOrdersForCurrentUserAsync()
         {
             // Get current user from UserService
             var currentUser = await _userService.GetCurrentUserAsync();
@@ -39,7 +40,7 @@ namespace InventoryManagement.Application.Services
             // If user is not authenticated, return empty list
             if (currentUser == null)
             {
-                return new List<Orders>();
+                return new List<OrderView>();
             }
 
             // Use the user ID from the current user

@@ -13,6 +13,8 @@ namespace InventoryManagement.Repo.Interfaces
         Task<Orders> GetOrderById(int id);
         Task<int> CreateOrder(Orders order);
         Task<bool> UpdateOrderStatus(int orderId, string status);
+
+        Task<IEnumerable<Orders>> GetOrdersByUserIdAsync(int userId);
     }
    
 }

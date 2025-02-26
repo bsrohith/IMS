@@ -7,6 +7,7 @@ using Dapper;
 using InventoryManagement.Models.Entities;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
+using Microsoft.Data.SqlClient;
 
 namespace InventoryManagement.Repo.Repository
 {
@@ -46,6 +47,21 @@ namespace InventoryManagement.Repo.Repository
             using var connection = _dbContext.CreateConnection();
             var sql = "UPDATE Orders SET Status = @Status WHERE Id = @Id";
             return await connection.ExecuteAsync(sql, new { Id = orderId, Status = status }) > 0;
+        }
+
+
+        public async Task<IEnumerable<Orders>> GetOrdersByUserIdAsync(int userId)
+        {
+            const string sql = @"
+                SELECT o.OrderId, o.UserId, o.OrderDate, o.TotalAmount, o.OrderStatus,
+                       u.Username, u.Email
+                FROM Orders o
+                INNER JOIN Users u ON o.UserId = u.UserId
+                WHERE o.UserId = @UserId
+                ORDER BY o.OrderDate DESC";
+
+            using var connection = _dbContext.CreateConnection(); 
+            return await connection.QueryAsync<Orders>(sql, new { UserId = userId });
         }
     }
 }

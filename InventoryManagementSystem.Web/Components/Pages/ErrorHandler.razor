@@ -1,0 +1,15 @@
+﻿@using InventoryManagement.Application.Services
+@inject ErrorService ErrorService
+
+<ErrorBoundary OnError="HandleError">
+    @ChildContent
+</ErrorBoundary>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private void HandleError(Exception exception)
+    {
+        ErrorService.LogError(exception);
+    }
+}

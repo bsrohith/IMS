@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-
+<ErrorHandler>
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
@@ -26,6 +26,7 @@
         </LayoutView>
     </NotFound>
 </Router>
+</ErrorHandler>
 
 @code {
     private class RedirectToLogin : ComponentBase

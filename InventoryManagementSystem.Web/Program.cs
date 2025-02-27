@@ -4,7 +4,7 @@ using InventoryManagement.Application.Services;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
 using InventoryManagement.Repo.Repository;
-using InventoryManagementSystem.Web.Auth;
+
 using InventoryManagementSystem.Web.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -26,6 +26,7 @@ builder.Services.AddScoped<ICategoryService, CatergoryService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductDetailService, ProductDetailService>();
+builder.Services.AddSingleton<ErrorService>();
 
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

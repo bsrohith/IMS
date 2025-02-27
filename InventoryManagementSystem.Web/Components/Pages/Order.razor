@@ -2,17 +2,24 @@
 @rendermode InteractiveServer
 @inject IOrderService OrderService
 @inject IJSRuntime JSRuntime
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject IUserService UserService
+@inject NavigationManager nav
 
-<h3>My Orders</h3>
+@inject IHttpContextAccessor HttpContextAccessor
+
+<h3>@(isAdmin ? "All Orders" : "My Orders")</h3>
 
 @if (isLoading)
 {
-    <p>Loading your orders...</p>
+    <p>Loading orders...</p>
 }
 else if (!orders.Any())
 {
     <div class="alert alert-info">
-        You don't have any orders yet.
+        @(isAdmin ? "There are no orders in the system." : "You don't have any orders yet.")
     </div>
 }
 else
@@ -64,7 +71,10 @@ else
                                         <th>Order ID:</th>
                                         <td>@selectedOrder.OrderId</td>
                                     </tr>
-
+                                    <tr>
+                                        <th>Username:</th>
+                                        <td>@selectedOrder.Username</td>
+                                    </tr>
                                     <tr>
                                         <th>Order Date:</th>
                                         <td>@selectedOrder.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
@@ -80,7 +90,7 @@ else
                                 </tbody>
                             </table>
                         </div>
-                     
+
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -94,23 +104,48 @@ else
 
 @code {
     private List<OrderView> orders = new();
+    private List<Orders> adminOrders = new();
     private bool isLoading = true;
     private OrderView selectedOrder;
+    private bool isAdmin = false;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             isLoading = true;
-            orders = (await OrderService.GetOrdersForCurrentUserAsync()).ToList();
+
+            // Direct check with HttpContextAccessor to ensure we get the current user
+            var user = HttpContextAccessor.HttpContext?.User;
+            isAdmin = user?.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Admin") ?? false;
+
+            Console.WriteLine($"Is user admin: {isAdmin}");
+
+            // Get orders based on user role
+            if (isAdmin)
+            {
+                // Get all orders for admin users
+                Console.WriteLine("Fetching all orders for admin");
+                adminOrders = (await OrderService.GetAllOrders()).ToList();
+            }
+            else
+            {
+                // Get only the current user's orders for regular users
+                Console.WriteLine("Fetching user-specific orders");
+                orders = (await OrderService.GetOrdersForCurrentUserAsync()).ToList();
+            }
+
+            Console.WriteLine($"Retrieved {orders.Count} orders");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading orders: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
         }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 

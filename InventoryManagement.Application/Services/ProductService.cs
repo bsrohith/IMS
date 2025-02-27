@@ -39,5 +39,13 @@ namespace InventoryManagement.Application.Services
         {
            return (List<ProductViewModel>)await _productRepository.GetAllProductsWithDetailWithUserAsync(userId);
         }
+
+        public async Task<Suppliers> GetSupplierByUserIdAsync(int userId)
+        {
+            var suppliers = await _productRepository.GetSupplierByUserIdAsync(userId);
+            // Return the first supplier that matches the userId or null if none is found
+            return suppliers.FirstOrDefault();
+        }
+
     }
 }

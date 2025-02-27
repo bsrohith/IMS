@@ -15,5 +15,7 @@ namespace InventoryManagement.Models.Entities
         public string City { get; set; }
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
+        public string SupplierName { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
     }
 }

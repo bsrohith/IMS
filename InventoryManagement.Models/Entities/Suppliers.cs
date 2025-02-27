@@ -12,5 +12,7 @@ namespace InventoryManagement.Models.Entities
         public string SupplierName { get; set; } = string.Empty;
         public string ContactEmail { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+
+        public int UserId { get; set; }
     }
 }

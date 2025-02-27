@@ -68,8 +68,22 @@ namespace InventoryManagement.Application.Services
                 CreatedAt = DateTime.Now
             };
 
-            // Save user to database
-            await _userRepository.CreateUserAsync(user);
+         
+
+            if (model.UserRole == "Supplier")
+            {
+                var supplier = new Suppliers
+                {
+                    //UserId = user.UserId, // Link to the user
+                    SupplierName = model.SupplierName,
+                    ContactEmail = model.Email,
+                    PhoneNumber = model.PhoneNumber
+                };
+
+                // Save user to database
+             
+                await _userRepository.CreateUserAsync(user, supplier);
+            }
 
             return (true, "Registration successful. You can now log in.");
         }

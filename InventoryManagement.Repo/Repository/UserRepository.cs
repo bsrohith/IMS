@@ -32,12 +32,50 @@ namespace InventoryManagement.Repo.Repository
             return await connection.QueryFirstOrDefaultAsync<bool>("SELECT 1 FROM Users WHERE Email = @Email", new { Email = email });
         }
 
-        public async Task CreateUserAsync(Users user)
+        //public async Task CreateUserAsync(Users user)
+        //{
+        //    using var connection = _dbContext.CreateConnection();
+        //    var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress, City) VALUES (@Username, @Email, @PasswordHash, @UserRole, @CreatedAt, @UserAddress, @City);";
+
+        //    await connection.ExecuteAsync(query, user);
+        //}
+
+        public async Task CreateUserAsync(Users user, Suppliers supplier = null)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = "INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress, City) VALUES (@Username, @Email, @PasswordHash, @UserRole, @CreatedAt, @UserAddress, @City);";
+            connection.Open();
 
-            await connection.ExecuteAsync(query, user);
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // Insert into Users table and get the new UserId
+                var insertUserQuery = @"
+            INSERT INTO Users (Username, Email, PasswordHash, UserRole, CreatedAt, UserAddress, City) 
+            VALUES (@Username, @Email, @PasswordHash, @UserRole, @CreatedAt, @UserAddress, @City);
+            SELECT CAST(SCOPE_IDENTITY() as int);";
+
+                var userId = await connection.ExecuteScalarAsync<int>(insertUserQuery, user, transaction);
+
+                // If this is a supplier, insert the supplier data too
+                if (supplier != null && user.UserRole == "Supplier")
+                {
+                    supplier.UserId = userId;
+
+                    var insertSupplierQuery = @"
+                INSERT INTO Suppliers (UserId, SupplierName, ContactEmail, PhoneNumber)
+                VALUES (@UserId, @SupplierName, @ContactEmail, @PhoneNumber);";
+
+                    await connection.ExecuteAsync(insertSupplierQuery, supplier, transaction);
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Users>> GetAllUsers()

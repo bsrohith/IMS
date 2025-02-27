@@ -3,7 +3,6 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
-
 <h1>Register</h1>
 
 @if (!string.IsNullOrEmpty(message))
@@ -40,15 +39,33 @@
                 <label for="city">City</label>
                 <InputText id="city" class="form-control" @bind-Value="registerModel.City" />
             </div>
+
             <div class="form-group mb-3">
                 <label for="userRole">User Role</label>
-                <InputSelect id="userRole" class="form-control" @bind-Value="registerModel.UserRole">
+                <InputSelect id="userRole" class="form-control" @bind-Value="registerModel.UserRole" @onchange="HandleRoleChange">
                     <option value="">-- Select Role --</option>
                     <option value="User">User</option>
                     <option value="Supplier">Supplier</option>
                 </InputSelect>
                 <ValidationMessage For="@(() => registerModel.UserRole)" />
             </div>
+
+            @if (registerModel.UserRole == "Supplier")
+            {
+                <div class="supplier-fields">
+                    <div class="form-group mb-3">
+                        <label for="supplierName">Supplier Name</label>
+                        <InputText id="supplierName" class="form-control" @bind-Value="registerModel.SupplierName" />
+                        <ValidationMessage For="@(() => registerModel.SupplierName)" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="phoneNumber">Phone Number</label>
+                        <InputText id="phoneNumber" class="form-control" @bind-Value="registerModel.PhoneNumber" />
+                        <ValidationMessage For="@(() => registerModel.PhoneNumber)" />
+                    </div>
+                </div>
+            }
 
             <div class="form-group mb-3">
                 <label for="password">Password</label>
@@ -87,9 +104,36 @@
     private string alertClass;
     private bool isSubmitting = false;
 
+    private void HandleRoleChange(ChangeEventArgs e)
+    {
+        // Force UI update when role changes
+        StateHasChanged();
+    }
+
     private async Task HandleRegistration()
     {
         isSubmitting = true;
+
+        // Validate supplier fields if role is Supplier
+        if (registerModel.UserRole == "Supplier")
+        {
+            if (string.IsNullOrWhiteSpace(registerModel.SupplierName))
+            {
+                alertClass = "alert alert-danger";
+                message = "Supplier Name is required.";
+                isSubmitting = false;
+                return;
+            }
+
+
+            if (string.IsNullOrWhiteSpace(registerModel.PhoneNumber))
+            {
+                alertClass = "alert alert-danger";
+                message = "Phone Number is required.";
+                isSubmitting = false;
+                return;
+            }
+        }
 
         var result = await UserService.RegisterUserAsync(registerModel);
 

@@ -112,5 +112,14 @@ namespace InventoryManagement.Repo.Repository
             var query = "UPDATE Products SET StockQuantity=@StockQuantity WHERE ProductId=@ProductId";
             await connection.ExecuteAsync(query, new { StockQuantity  = quantity, ProductId = productid });
         }
+
+
+        public async Task<List<Suppliers>> GetSupplierByUserIdAsync(int userId)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = "SELECT * FROM Suppliers WHERE UserId = @UserId";
+            var suppliers = await connection.QueryAsync<Suppliers>(query, new { UserId = userId });
+            return suppliers.ToList();
+        }
     }
 }

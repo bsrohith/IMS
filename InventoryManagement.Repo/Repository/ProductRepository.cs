@@ -80,7 +80,7 @@ namespace InventoryManagement.Repo.Repository
                   LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
                   WHERE p.SellerId = @SellerId"; 
 
-            return await connection.QueryAsync<ProductViewModel>(query, new { SupplierId = userId });
+            return await connection.QueryAsync<ProductViewModel>(query, new { SellerId = userId });
         }
 
 

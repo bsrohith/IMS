@@ -84,6 +84,11 @@ namespace InventoryManagement.Application.Services
              
                 await _userRepository.CreateUserAsync(user, supplier);
             }
+            else
+            {
+                // Save just the user to database for non-supplier roles
+                await _userRepository.CreateUserAsync(user);
+            }
 
             return (true, "Registration successful. You can now log in.");
         }

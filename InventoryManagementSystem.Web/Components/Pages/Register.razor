@@ -1,6 +1,8 @@
 ﻿@page "/register"
+@using NetcodeHub.Packages.Components.Toast
 @inject IUserService UserService
 @inject NavigationManager NavigationManager
+@inject ToastService toastService
 @rendermode InteractiveServer
 
 <h1>Register</h1>
@@ -98,6 +100,9 @@
     <p>Already have an account? <a href="login">Log in</a></p>
 </div>
 
+<!-- Add the Toast component -->
+<Toast @ref="toastService.ToastComponent" Duration="6000" IconClass="bi bi-check" Persist="true" />
+
 @code {
     private UserRegister registerModel = new UserRegister();
     private string message;
@@ -119,15 +124,16 @@
         {
             if (string.IsNullOrWhiteSpace(registerModel.SupplierName))
             {
+                toastService.ShowErrorToast("Validation Error", "Supplier Name is required.");
                 alertClass = "alert alert-danger";
                 message = "Supplier Name is required.";
                 isSubmitting = false;
                 return;
             }
 
-
             if (string.IsNullOrWhiteSpace(registerModel.PhoneNumber))
             {
+                toastService.ShowErrorToast("Validation Error", "Phone Number is required.");
                 alertClass = "alert alert-danger";
                 message = "Phone Number is required.";
                 isSubmitting = false;
@@ -139,6 +145,7 @@
 
         if (result.Success)
         {
+            toastService.ShowSuccessToast("Registration Successful", result.Message);
             alertClass = "alert alert-success";
             message = result.Message;
 
@@ -148,6 +155,7 @@
         }
         else
         {
+            toastService.ShowErrorToast("Registration Failed", result.Message);
             alertClass = "alert alert-danger";
             message = result.Message;
         }

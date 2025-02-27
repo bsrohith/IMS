@@ -2,9 +2,13 @@
 @using Microsoft.AspNetCore.Authentication.Cookies
 @using Microsoft.AspNetCore.Http
 @page "/logout"
-
-
+@using NetcodeHub.Packages.Components.Toast
+@inject ToastService toastService
 @inject NavigationManager nav
+@rendermode InteractiveServer
+
+<!-- Add the Toast component -->
+<Toast @ref="toastService.ToastComponent" Duration="6000" IconClass="bi bi-check" Persist="true" />
 
 @code {
     [CascadingParameter]
@@ -12,7 +16,24 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        nav.NavigateTo("/");
+        if (httpContext != null)
+        {
+            await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Show success message using toast
+            toastService.ShowSuccessToast("Logout Successful", "Logout successful! Redirecting...");
+
+            // Delay navigation to allow toast to be seen
+            await Task.Delay(500);
+
+            // Navigate to home page
+            nav.NavigateTo("/");
+        }
     }
 }

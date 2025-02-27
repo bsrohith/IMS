@@ -3,9 +3,12 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authentication.Cookies
+@using NetcodeHub.Packages.Components.Toast
 @inject IUserService UserService
 @inject NavigationManager nav
 @inject IJSRuntime JSRuntime
+@inject ToastService toastService
+@rendermode InteractiveServer
 
 <h1>Login</h1>
 <div class="row">
@@ -33,6 +36,9 @@
     </div>
 </div>
 
+<!-- Add the Toast component -->
+<Toast @ref="toastService.ToastComponent" Duration="6000" IconClass="bi bi-check" Persist="true" />
+
 @code {
     private Alert alert;
     private bool isRedirecting = false;
@@ -47,12 +53,11 @@
             // Check if there's a key parameter in the URL for a successful login redirect
             var uri = new Uri(nav.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-
             if (query["key"] != null && !string.IsNullOrEmpty(query["key"]) &&
                 query["showAlert"] == "success")
             {
-                // Show success message
-                alert.ShowSuccess("Login successful! Redirecting...");
+
+
                 StateHasChanged();
 
                 // Determine redirect location (default to /products if not specified)
@@ -72,17 +77,14 @@
     public async Task OnLogin()
     {
         if (isRedirecting) return;
-
         var user = await UserService.Verify(Input.Email, Input.PasswordHash);
         if (user is null)
         {
             alert.ShowFailed("Invalid Email or Password");
             return;
         }
-
         // Set flag to prevent multiple redirects
         isRedirecting = true;
-
         // Create authentication claims
         var claims = new List<Claim>
         {
@@ -92,12 +94,16 @@
         };
         var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimIdentity);
-
         // Create login key
         Guid key = Guid.NewGuid();
         AuthMiddleware.Logins[key] = claimsPrincipal;
-
         // Navigate to login with key and showAlert parameter
+
+
+        // Show success message using NetcodeHub Toast
+        toastService.ShowSuccessToast("Login Successful", "Login successful! Redirecting...");
+
+        await Task.Delay(2000);
         nav.NavigateTo($"/login?key={key}&showAlert=success", true);
     }
 }

@@ -4,7 +4,7 @@
     {
         //Roles
         public const string User = "User";
-        public const string Admin = "Admnin";
+        public const string Admin = "Admin";
         public const string Supplier = "Supplier";
 
         //Order Status

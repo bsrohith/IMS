@@ -16,6 +16,8 @@ namespace InventoryManagement.Repo.Interfaces
         Task DeleteProductAsync(int id);
         Task<IEnumerable<ProductViewModel>> GetAllProductsWithDetailAsync();
         Task<ProductViewModel> GetProductViewModeByIdAsync(int id);
+        Task<int> GetStockQuantity(int productId);
+        Task UpdateProductStockQuantity(int productid, int quantity);
     }
-    
+
 }

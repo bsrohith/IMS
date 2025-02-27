@@ -31,7 +31,7 @@ namespace InventoryManagement.Repo.Repository
         public async Task<Products> GetProductByIdAsync(int id)
         {
             using var connection = _dbContext.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<Products>("SELECT * FROM Products WHERE ProductId = @Id", new { ProductId = id });
+            return await connection.QueryFirstOrDefaultAsync<Products>("SELECT * FROM Products WHERE ProductId = @Id", new { Id = id });
         }
 
         public async Task<int> AddProductAsync(Products product)
@@ -80,6 +80,22 @@ namespace InventoryManagement.Repo.Repository
                         WHERE p.ProductId = @ProductId";
 
             return await connection.QueryFirstOrDefaultAsync<ProductViewModel>(query, new { ProductId = id });
+        }
+
+        public async Task<int> GetStockQuantity(int productId)
+        {
+            using var connection = _dbContext.CreateConnection();
+            // Get stock quantity for the product
+            return await connection.ExecuteScalarAsync<int>(
+                 "SELECT StockQuantity FROM Products WHERE ProductId = @ProductId",
+                 new { ProductId = productId });
+        }
+
+        public async Task UpdateProductStockQuantity(int productid,int quantity)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = "UPDATE Products SET StockQuantity=@StockQuantity WHERE ProductId=@ProductId";
+            await connection.ExecuteAsync(query, new { StockQuantity  = quantity, ProductId = productid });
         }
     }
 }

@@ -7,8 +7,8 @@
             <!-- Product Image -->
             <div class="col-md-5">
                 <img src="data:image/png;base64,@product.ProductPhoto" class="img-fluid rounded-start"
-                     alt="@product.ProductName"
-                     onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
+                alt="@product.ProductName"
+                onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
             </div>
 
             <!-- Product Details -->
@@ -18,14 +18,14 @@
                     <p class="text-muted">@product.ProductDescription</p>
                     <h4 class="text-success">$@product.Price</h4>
                     <p><strong>Category:</strong> @category?.CategoryName</p>
-                    <p><strong>Seller:</strong> @seller?.SupplierId</p>
+                    <p><strong>Seller:</strong> @seller?.SupplierName</p>
                     <p><strong>Stock Available:</strong> @product.StockQuantity</p>
 
                     <!-- Quantity Selection -->
                     <div class="d-flex align-items-center mb-3">
                         <button class="btn btn-secondary btn-sm me-2" @onclick="DecreaseQuantity">-</button>
                         <input type="number" class="form-control w-25 text-center"
-                               @bind="orderQuantity" min="1" max="@product.StockQuantity">
+                        @bind="orderQuantity" min="1" max="@product.StockQuantity">
                         <button class="btn btn-secondary btn-sm ms-2" @onclick="IncreaseQuantity">+</button>
                     </div>
                     @if (quantityErrorMessage != null)
@@ -34,8 +34,11 @@
                     }
 
                     <!-- Add to Order Button -->
-                    <button class="btn btn-primary" @onclick="AddToOrder" disabled="@(!canAddToOrder)">
-                        Add to Order
+                    <button class="btn btn-primary" @onclick="() => AddToCart(product.ProductId,users.UserId)">
+                        Add to  Cart
+                    </button>
+                    <button class="btn btn-dark" @onclick="() => GoBack()">
+                        Back
                     </button>
                 </div>
             </div>
@@ -49,12 +52,14 @@
     private ProductViewModel product = new();
     private Categories category = new();
     private Suppliers seller = new();
+    private Users users = new();
     private int orderQuantity = 1;
     private bool canAddToOrder = true;
     private string quantityErrorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        users = (Users)await UserService.GetCurrentUserAsync();
         product = await ProductService.GetProductViewModeByIdAsync(productId);
         var categories = await CategoryService.GetAllCategories();
         category = categories.FirstOrDefault(cat => cat.CategoryId == product.CategoryId);
@@ -83,12 +88,27 @@
         }
     }
 
-    private void AddToOrder()
+    private async void AddToCart(int productid, int userid)
     {
         if (orderQuantity <= product.StockQuantity)
         {
-            //OrderService.AddToOrder(product, orderQuantity);
-            canAddToOrder = false;
+            //create checkout item here
+            await CheckoutService.AddToCheckoutAsync(new CheckoutItem()
+                {
+                    Price = product.Price,
+                    ProductId = productid,
+                    ProductName = product.ProductName,
+                    Quantity = orderQuantity,
+                    StockQuantity = product.StockQuantity,
+                    UserId = userid
+                });
+            Navigation.NavigateTo("/productlist");
         }
+        else{
+            //TODO:Quantity exceed message
+        }
+    }
+    private void GoBack(){
+        Navigation.NavigateTo("/productlist");
     }
 }

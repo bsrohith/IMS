@@ -29,5 +29,10 @@ namespace InventoryManagement.Application.Services
         {
             return await _productRepository.GetProductViewModeByIdAsync(id);
         }
+
+        public async Task UpdateProductStockQuantity(int productid, int quantity)
+        {
+            await _productRepository.UpdateProductStockQuantity(productid, quantity);
+        }
     }
 }

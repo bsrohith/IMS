@@ -1,24 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using InventoryManagement.Common;
 using InventoryManagement.Models.Entities;
 using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Data;
 using InventoryManagement.Repo.Interfaces;
 using Microsoft.Data.SqlClient;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace InventoryManagement.Repo.Repository
 {
     public class OrderRepository : IOrderRepository
     {
         private readonly DapperDbContext _dbContext;
+        private readonly ICheckoutRepository _checkoutRepository;
+        private readonly IInventoryRepository _inventoryRepository;
+        private readonly IProductRepository _productRepository;
 
-        public OrderRepository(DapperDbContext dbContext)
+        public OrderRepository(DapperDbContext dbContext, ICheckoutRepository checkoutRepository, IInventoryRepository inventoryRepository, IProductRepository productRepository)
         {
             _dbContext = dbContext;
+            _checkoutRepository = checkoutRepository;
+            _inventoryRepository = inventoryRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<IEnumerable<Orders>> GetAllOrders()
@@ -34,11 +43,11 @@ namespace InventoryManagement.Repo.Repository
                 "SELECT * FROM Orders WHERE OrderId = @OrderId", new { Id = id });
         }
 
-        public async Task<int> CreateOrder(Orders order)
+        public async Task<int> CreateOrder(Orders order, IDbTransaction transaction)
         {
             using var connection = _dbContext.CreateConnection();
-            var sql = @"INSERT INTO Orders (UserId, OrderDate, TotalAmount, Status)
-                        VALUES (@UserId, GETDATE(), @TotalAmount, 'Pending');
+            var sql = @"INSERT INTO Orders (UserId, OrderDate, TotalAmount, OrderStatus)
+                        VALUES (@UserId, GETDATE(), @TotalAmount, @OrderStatus);
                         SELECT CAST(SCOPE_IDENTITY() as int)";
             return await connection.ExecuteScalarAsync<int>(sql, order);
         }
@@ -61,8 +70,59 @@ namespace InventoryManagement.Repo.Repository
                 WHERE o.UserId = @UserId
                 ORDER BY o.OrderDate DESC";
 
-            using var connection = _dbContext.CreateConnection(); 
+            using var connection = _dbContext.CreateConnection();
             return await connection.QueryAsync<OrderView>(sql, new { UserId = userId });
+        }
+
+        public async Task<List<CheckoutItem>> ConfirmOrderAsync(int userid)
+        {
+            using var connection = _dbContext.CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                var checkoutItems = await _checkoutRepository.GetCheckoutItemsAsync(userid, transaction);
+                if (!checkoutItems.Any())
+                {
+                    transaction.Rollback();
+                    return new List<CheckoutItem>(0);
+                }
+
+                var order = new Orders()
+                {
+                    UserId = userid,
+                    TotalAmount = checkoutItems.Sum(chk => chk.Quantity * chk.Price),
+                    OrderStatus = CommonStrings.OrderCreated,
+                };
+
+                var orderId = await CreateOrder(order, transaction);
+
+                await CreateOrderItems(checkoutItems, orderId, transaction);
+
+                transaction.Commit();
+                return (checkoutItems);
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return (new List<CheckoutItem>(0));
+            }
+        }
+
+        public async Task CreateOrderItems(List<CheckoutItem> checkoutItems, int orderId, IDbTransaction transaction)
+        {
+            foreach (var item in checkoutItems)
+            {
+                var query = "INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice) VALUES (@OrderId, @ProductId, @Quantity, @UnitPrice)";
+                await transaction.Connection.ExecuteAsync(query, new
+                {
+                    OrderId = orderId,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.Price,
+                    TotalPrice = item.Quantity * item.Price,
+                }, transaction);
+            }
         }
     }
 }

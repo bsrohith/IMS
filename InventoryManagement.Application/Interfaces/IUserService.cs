@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 
 namespace InventoryManagement.Application.Interfaces
 {

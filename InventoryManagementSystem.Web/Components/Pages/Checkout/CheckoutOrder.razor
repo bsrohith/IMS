@@ -1,0 +1,114 @@
+﻿@page "/checkout/{userid:int}"
+@rendermode InteractiveServer
+<h3>Checkout</h3>
+
+@if (CheckoutItems == null || !CheckoutItems.Any())
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in CheckoutItems)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="() => UpdateQuantity(item.CheckoutId, item.Quantity - 1, item.ProductId)"
+                        disabled="@(item.Quantity <= 1)">
+                            -
+                        </button>
+                        @item.Quantity
+                        <button class="btn btn-sm btn-outline-secondary"
+                        @onclick="() => UpdateQuantity(item.CheckoutId, item.Quantity + 1, item.ProductId)"
+                        disabled="@(item.Quantity >= item.StockQuantity)">
+                            +
+                        </button>
+                    </td>
+                    <td>@(item.Quantity * item.Price)</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" @onclick="() => RemoveItem(item.CheckoutId)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="checkout-footer">
+        <h4>Total Amount: @CheckoutItems.Sum(i => i.Quantity * i.Price).ToString("C")</h4>
+        <button class="btn btn-success" @onclick="ConfirmOrder">Confirm Order</button>
+    </div>
+}
+
+@code {
+    [Parameter] public int userId { get; set; }
+
+    private List<CheckoutItem> CheckoutItems = new();
+    private Users users = new();
+    protected override async Task OnInitializedAsync()
+    {
+        users = (Users)await UserService.GetCurrentUserAsync();
+        CheckoutItems = await CheckoutService.GetCheckoutItemsAsync(userId);
+    }
+
+    private async Task UpdateQuantity(int checkoutId, int newQuantity, int productId)
+    {
+        var item = CheckoutItems.FirstOrDefault(i => i.CheckoutId == checkoutId);
+        if (item == null || newQuantity <= 0 || newQuantity > item.StockQuantity) return;
+
+        var success = await CheckoutService.UpdateCheckoutItemQuantityAsync(checkoutId, newQuantity, productId);
+        if (success)
+        {
+            item.Quantity = newQuantity;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RemoveItem(int checkoutId)
+    {
+        await CheckoutService.RemoveFromCheckoutAsync(checkoutId);
+        CheckoutItems.RemoveAll(i => i.CheckoutId == checkoutId);
+        StateHasChanged();
+    }
+    private async Task ConfirmOrder()
+    {
+        var items = (List<CheckoutItem>)await OrderService.ConfirmOrderAsync(users.UserId);
+        if (items.Count() > 0)
+        {
+            foreach (var item in items)
+            {
+                Products product = await ProductService.GetProductByIdAsync(item.ProductId);
+
+                var inventory = new InventoryTransactionQueryViewModel()
+                    {
+                        ProductId = item.ProductId,
+                        NewQuantity = product.StockQuantity - item.Quantity,
+                        Quantity = product.StockQuantity - item.Quantity,
+                        TransactionType = CommonStrings.TransactionSold,
+                        UserId = item.UserId,
+                        TransactionLog = $"{product.ProductName} has been {CommonStrings.TransactionSold} with {item.Quantity} quantity to {users.Username}."
+                    };
+                await InventoryService.UpdateInventoryTransaction(inventory);
+                await ProductService.UpdateProductStockQuantity(item.ProductId, product.StockQuantity - item.Quantity);
+            }
+            await CheckoutService.ClearCheckoutAsync(users.UserId);
+            Navigation.NavigateTo("/productlist");
+        }
+        else
+        {
+            // Handle order failure (e.g., show error message)
+        }
+    }
+}

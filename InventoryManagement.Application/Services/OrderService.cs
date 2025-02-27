@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<Orders> GetOrderById(int id) => await _orderRepository.GetOrderById(id);
 
-        public async Task<int> CreateOrder(Orders order) => await _orderRepository.CreateOrder(order);
+        public async Task<int> CreateOrder(Orders order,IDbTransaction transaction) => await _orderRepository.CreateOrder(order, transaction);
 
         public async Task<bool> UpdateOrderStatus(int orderId, string status)
             => await _orderRepository.UpdateOrderStatus(orderId, status);
@@ -45,6 +46,11 @@ namespace InventoryManagement.Application.Services
 
             // Use the user ID from the current user
             return await _orderRepository.GetOrdersByUserIdAsync(currentUser.UserId);
+        }
+
+        public async Task<List<CheckoutItem>> ConfirmOrderAsync(int userid)
+        {
+            return await _orderRepository.ConfirmOrderAsync(userid);
         }
     }
 }

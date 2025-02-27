@@ -117,8 +117,17 @@ h1:focus {
 .list-group-item:hover {
     background-color: #f8f9fa;
 }
-
-
-
+.checkout-footer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
 /*#endregion */

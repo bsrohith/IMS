@@ -9,8 +9,6 @@
     <div class="col-md-1">
         <button class="btn btn-primary" @onclick="SearchProduct">Search</button>
     </div>
-    <div class="col-md-2">
-    </div>
     <div class="col-md-3">
         <select class="form-select" @onchange="FilterByCategory">
             <option value="0">All Categories</option>
@@ -19,6 +17,9 @@
                 <option value="@category.CategoryId">@category.CategoryName</option>
             }
         </select>
+    </div>
+    <div class="col-md-2">
+        <button @onclick="() => ShowCart(user.UserId)" class="btn btn-primary" type="button">Cart</button>
     </div>
 </div>
 
@@ -37,7 +38,7 @@
                                 <h5 class="card-title">@product.ProductName</h5>
                                 <p class="card-text text-success">$@product.Price</p>
                                 <p class="card-text small">@product.ProductDescription</p>
-                                <button class="btn btn-primary" @onclick="() => ShowDetails(product)">View Details</button>
+                                <button class="btn btn-primary" @onclick="() => ViewDetail(product.ProductId)">View Details</button>
                             </div>
                         </div>
                     </div>
@@ -93,7 +94,7 @@
     private List<ProductViewModel> products = new();
     private List<ProductViewModel> filteredProducts = new();
     private List<Categories> Categories = new();
-
+    private Users user = new();
     private string searchQuery = string.Empty;
     private int selectedCategory;
     private int maxPrice = 1000;
@@ -114,6 +115,7 @@
         products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
         Categories = await CategoryService.GetAllCategories();
         filteredProducts = products;
+        user = await UserService.GetCurrentUserAsync();
     }
 
     private void SearchProduct()
@@ -131,14 +133,23 @@
     }
 
 
-    private void ShowDetails(ProductViewModel product)
+    // private void ShowDetails(ProductViewModel product)
+    // {
+    //     selectedProduct = product;
+    //     isDetailModalVisible = true;
+    // }
+    private void ViewDetail(int productId)
     {
-        selectedProduct = product;
-        isDetailModalVisible = true;
+        Navigation.NavigateTo($"/productdetail/{productId}");
     }
 
     private void CloseDetails()
     {
         isDetailModalVisible = false;
+    }
+
+    private void ShowCart(int userid)
+    {
+        Navigation.NavigateTo($"/checkout/{userid}");
     }
 }

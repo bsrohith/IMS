@@ -87,6 +87,7 @@
     private List<Categories> Categories = new();
     private List<Suppliers> Suppliers = new();
     private IBrowserFile? UploadedFile;
+    private Users user = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,6 +102,7 @@
         }
         Categories = await CategoryService.GetAllCategories();
         Suppliers = await SupplierService.GetAllSuppliers();
+        user = await UserService.GetCurrentUserAsync();
     }
 
     private async Task HandleValidSubmit()
@@ -135,7 +137,7 @@
                     ProductId = id,
                     Quantity = Product.StockQuantity,
                     TransactionType = CommonStrings.TransactionAdded,
-                    UserId = new Random().Next(1, 10), //Change it to actaul user
+                    UserId = user.UserId,
                     TransactionLog = $"{Product.ProductName} has been {CommonStrings.TransactionAdded} with {Product.StockQuantity} quantity."
                 });
         }
@@ -166,7 +168,7 @@
                     Quantity = Product.StockQuantity,
                     NewQuantity = Product.StockQuantity,
                     TransactionType = CommonStrings.TransactionUpdated,
-                    UserId = new Random().Next(1, 10), //Change it to actaul user
+                    UserId = user.UserId,
                     TransactionLog = $"{Product.ProductName} has been {CommonStrings.TransactionUpdated} with {Product.StockQuantity} quantity."
                 });
         }

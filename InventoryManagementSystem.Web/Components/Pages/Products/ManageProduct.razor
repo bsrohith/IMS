@@ -121,7 +121,8 @@
                     CategoryId = Product.CategoryId,
                     StockQuantity = Product.StockQuantity,
                     CreatedAt = DateTime.Now,
-                    SupplierId = user.UserId
+                    SupplierId = Product.SupplierId,
+                    SellerId= user.UserId
                 });
 
             await ProductDetailService.AddProductDetailAsync(new ProductDetails()
@@ -151,7 +152,8 @@
                     CategoryId = Product.CategoryId,
                     StockQuantity = Product.StockQuantity,
                     CreatedAt = DateTime.Now,
-                    SupplierId = user.UserId
+                    SupplierId = Product.SupplierId,
+                    SellerId = user.UserId
                 });
 
             await ProductDetailService.UpdateProductDetailAsync(new ProductDetails()

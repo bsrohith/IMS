@@ -15,5 +15,6 @@ namespace InventoryManagement.Models.Entities
         public int CategoryId { get; set; }  // Foreign Key
         public int SupplierId { get; set; }  // Foreign Key
         public DateTime CreatedAt { get; set; }
+        public int SellerId { get; set; }
     }
 }

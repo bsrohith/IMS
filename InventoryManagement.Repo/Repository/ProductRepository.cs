@@ -37,8 +37,8 @@ namespace InventoryManagement.Repo.Repository
         public async Task<int> AddProductAsync(Products product)
         {
             using var connection = _dbContext.CreateConnection();
-            var query = @" INSERT INTO Products (ProductName, Price, StockQuantity, CategoryId, SupplierId, CreatedAt) 
-                           VALUES (@ProductName, @Price, @StockQuantity, @CategoryId, @SupplierId, @CreatedAt);
+            var query = @" INSERT INTO Products (ProductName, Price, StockQuantity, CategoryId, SupplierId, CreatedAt,SellerId) 
+                           VALUES (@ProductName, @Price, @StockQuantity, @CategoryId, @SupplierId, @CreatedAt,@SellerId);
                            SELECT CAST(SCOPE_IDENTITY() as int);";
             return await connection.QuerySingleAsync<int>(query, product);
         }
@@ -74,11 +74,11 @@ namespace InventoryManagement.Repo.Repository
             using var connection = _dbContext.CreateConnection();
 
             var query = @"SELECT p.ProductId, p.ProductName, p.Price, p.StockQuantity, 
-                         p.CategoryId, p.SupplierId, p.CreatedAt, 
+                         p.CategoryId, p.SupplierId, p.CreatedAt,p.SellerId, 
                          pd.ProductDescription, pd.ProductPhoto
                   FROM Products p
                   LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
-                  WHERE p.SupplierId = @SupplierId"; 
+                  WHERE p.SellerId = @SellerId"; 
 
             return await connection.QueryAsync<ProductViewModel>(query, new { SupplierId = userId });
         }

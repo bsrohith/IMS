@@ -21,6 +21,9 @@ namespace InventoryManagement.Repo.Interfaces
         Task<IEnumerable<ProductViewModel>> GetAllProductsWithDetailWithUserAsync(int userId);
 
         Task<List<Suppliers>> GetSupplierByUserIdAsync(int userId);
+
+        
+
     }
 
 }

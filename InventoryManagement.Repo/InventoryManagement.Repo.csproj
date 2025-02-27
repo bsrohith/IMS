@@ -52,6 +52,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
     <PackageReference Include="Microsoft.JSInterop" Version="8.0.12" />
+    <PackageReference Include="NetcodeHub.Packages.Components.Toast" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

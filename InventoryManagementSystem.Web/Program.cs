@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
+using NetcodeHub.Packages.Components.Toast;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +49,7 @@ builder.Services.AddSingleton<DapperDbContext>();
 
 builder.Services.AddAuthenticationCore();
 
-
+builder.Services.AddScoped<ToastService>();
 
 
 // Add authentication services

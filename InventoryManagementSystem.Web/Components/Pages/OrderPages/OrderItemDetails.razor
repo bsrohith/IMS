@@ -1,0 +1,92 @@
+﻿@page "/orderitemdetails/{orderId:int}"
+@rendermode InteractiveServer
+
+<h3 class="mb-4">Order Details (Order ID: @OrderId)</h3>
+
+@if (OrderItems == null || !OrderItems.Any())
+{
+    <p class="text-muted">No items found for this order.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in OrderItems)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center mb-2">
+                            <img src="data:image/png;base64,@item.ProductPhoto" class="rounded" alt="Product Image" style="width: 80px; height: 80px; object-fit: cover;">
+                        </div>
+                        <h6 class="card-title text-center mb-1">@item.ProductName</h6>
+                        <p class="text-muted text-center small mb-2">@item.ProductDescription</p>
+
+                        <div class="d-flex justify-content-between small">
+                            <span class="fw-bold text-primary">Price:</span>
+                            <span class="text-end">₹ @item.UnitPrice.ToString("N2")</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between small">
+                            <span class="fw-bold text-primary">Quantity:</span>
+                            <span class="text-end">@item.Quantity</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between small">
+                            <span class="fw-bold text-primary">Total:</span>
+                            <span class="text-end">₹ @item.TotalPrice.ToString("N2")</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="fw-bold text-success small">Status:</span>
+                            <span class="badge @(item.OrderStatus == "Delivered" ? "bg-success" : "bg-warning text-dark")">
+                                @item.OrderStatus
+                            </span>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <div class="small text-center">
+                            <span class="fw-bold text-secondary">Seller:</span> <br>
+                            @item.SellerName <br>
+                            <small class="text-muted">@item.SellerEmail</small>
+                        </div>
+
+                        <div class="mt-auto text-center">
+                            <button class="btn btn-sm btn-danger w-100 mt-2" @onclick="() => CancelOrderItem(item.OrderItemId)">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<button class="btn btn-secondary mt-4" @onclick="NavigateBack">Back to Orders</button>
+
+@code {
+    [Parameter] public int OrderId { get; set; }
+    private List<OrderItemViewModel> OrderItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        OrderItems = await OrderService.GetOrderItemsByOrderId(OrderId);
+    }
+
+    private async Task CancelOrderItem(int orderItemId)
+    {
+        var success = await OrderService.CancelOrderItemAsync(orderItemId);
+        if (success)
+        {
+            OrderItems.RemoveAll(i => i.OrderItemId == orderItemId);
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/orders");
+    }
+}
+

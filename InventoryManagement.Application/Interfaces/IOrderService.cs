@@ -18,5 +18,9 @@ namespace InventoryManagement.Application.Interfaces
 
         Task<IEnumerable<OrderView>> GetOrdersForCurrentUserAsync();
         Task<List<CheckoutItem>> ConfirmOrderAsync(int userid);
+        Task<List<OrderItemViewModel>> GetOrderItemsByOrderId(int orderId);
+        Task<bool> CancelOrderItemAsync(int orderItemId);
+        Task<List<OrderItemSellerViewModel>> GetOrdersForSellerAsync(int sellerId);
+        Task<bool> UpdateOrderItemStatusAsync(int orderItemId, string newStatus);
     }
 }

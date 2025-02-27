@@ -15,18 +15,12 @@
 {
     <p>Loading your orders...</p>
 }
-else if (!orders.Any())
-{
-    <div class="alert alert-info">
-        You don't have any orders yet.
-    </div>
-}
 else
 {
     <table class="table">
         <thead>
             <tr>
-                @* <th>Username</th> *@
+                <th>#</th>
                 <th>Order Date</th>
                 <th>Total</th>
                 <th>Status</th>
@@ -34,16 +28,28 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var order in orders)
+            @if (orders.Any())
+            {
+                int index = 1;
+                @foreach (var order in orders)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td>&#8377;@order.TotalAmount.ToString("F2")</td>
+                        <td>@order.OrderStatus</td>
+                        <td>
+                            <button @onclick="() => ShowOrderDetails(order.OrderId)" class="btn btn-sm btn-primary">Details</button>
+                            <button @onclick="() => CancelOrder(order)" class="btn btn-sm btn-danger">Cancel</button>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
             {
                 <tr>
-                    @* <td>@order.Username</td> *@
-                    <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                    <td>&#8377;@order.TotalAmount.ToString("F2")</td>
-                    <td>@order.OrderStatus</td>
-                    <td>
-                        <button @onclick="() => ShowOrderDetails(order)" class="btn btn-sm btn-primary">Details</button>
-                    </td>
+                    <td colspan="6" class="text-center text-danger">No orders found.</td>
                 </tr>
             }
         </tbody>
@@ -115,7 +121,7 @@ else
         {
             isLoading = true;
             user = await UserService.GetCurrentUserAsync();
-            if(user.UserRole=="Admin")
+            if (user.UserRole == "Admin")
             {
                 var _orders = (await OrderService.GetAllOrders()).ToList<Orders>();
                 foreach (var order in _orders)
@@ -127,17 +133,14 @@ else
                     orderView.TotalAmount = order.TotalAmount;
                     orders.Add(orderView);
                 }
-
-
             }
+            //TODO:Handle Supplier/Seller Orders
             else
             {
                 // Convert IEnumerable to List with ToList()
                 var orderResults = await OrderService.GetOrdersForCurrentUserAsync();
                 orders = orderResults.ToList();
             }
-           
-
             Console.WriteLine($"Retrieved {orders.Count} orders");
         }
         catch (Exception ex)
@@ -154,7 +157,12 @@ else
         }
     }
 
-    private void ShowOrderDetails(OrderView order)
+    private void ShowOrderDetails(int orderId)
+    {
+        Navigation.NavigateTo($"/orderitemdetails/{orderId}");
+    }
+
+    private void CancelOrder(OrderView order)
     {
         selectedOrder = order;
     }

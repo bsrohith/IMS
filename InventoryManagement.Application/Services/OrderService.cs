@@ -27,7 +27,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<Orders> GetOrderById(int id) => await _orderRepository.GetOrderById(id);
 
-        public async Task<int> CreateOrder(Orders order,IDbTransaction transaction) => await _orderRepository.CreateOrder(order, transaction);
+        public async Task<int> CreateOrder(Orders order, IDbTransaction transaction) => await _orderRepository.CreateOrder(order, transaction);
 
         public async Task<bool> UpdateOrderStatus(int orderId, string status)
             => await _orderRepository.UpdateOrderStatus(orderId, status);
@@ -51,6 +51,26 @@ namespace InventoryManagement.Application.Services
         public async Task<List<CheckoutItem>> ConfirmOrderAsync(int userid)
         {
             return await _orderRepository.ConfirmOrderAsync(userid);
+        }
+
+        public async Task<List<OrderItemViewModel>> GetOrderItemsByOrderId(int orderId)
+        {
+            return (await _orderRepository.GetOrderItemsByOrderId(orderId)).ToList<OrderItemViewModel>();
+        }
+
+        public async Task<bool> CancelOrderItemAsync(int orderItemId)
+        {
+            return await _orderRepository.CancelOrderItemAsync(orderItemId);
+        }
+
+        public async Task<List<OrderItemSellerViewModel>> GetOrdersForSellerAsync(int sellerId)
+        {
+            return (await _orderRepository.GetOrdersForSellerAsync(sellerId)).ToList<OrderItemSellerViewModel>();
+        }
+
+        public async Task<bool> UpdateOrderItemStatusAsync(int orderItemId, string newStatus)
+        {
+            return await _orderRepository.UpdateOrderItemStatusAsync(orderItemId, newStatus);
         }
     }
 }

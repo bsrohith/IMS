@@ -19,6 +19,10 @@ namespace InventoryManagement.Repo.Interfaces
         Task<IEnumerable<OrderView>> GetOrdersByUserIdAsync(int userId);
         Task CreateOrderItems(List<CheckoutItem> checkoutItems, int orderId, IDbTransaction transaction);
         Task<List<CheckoutItem>> ConfirmOrderAsync(int userid);
+        Task<IEnumerable<OrderItemViewModel>> GetOrderItemsByOrderId(int orderId);
+        Task<bool> CancelOrderItemAsync(int orderItemId);
+        Task<IEnumerable<OrderItemSellerViewModel>> GetOrdersForSellerAsync(int sellerId);
+        Task<bool> UpdateOrderItemStatusAsync(int orderItemId, string newStatus);
     }
-   
+
 }

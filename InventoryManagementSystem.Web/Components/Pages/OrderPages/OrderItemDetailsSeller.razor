@@ -1,0 +1,65 @@
+﻿@page "/ordersdetail/seller"
+@rendermode InteractiveServer
+
+<h3>My Orders (Seller View)</h3>
+
+@if (OrderItems == null || !OrderItems.Any())
+{
+    <p>No orders found for your products.</p>
+}
+else
+{
+    <div class="order-container">
+        @foreach (var item in OrderItems)
+        {
+            <div class="order-card">
+                <div class="order-header">
+                    <h5>Order #@item.OrderId</h5>
+                    <p>@item.OrderDate.ToShortDateString()</p>
+                </div>
+                <div class="order-body">
+                    <img src="data:image/png;base64,@item.ProductPhoto" alt="Product" class="product-image" />
+                    <div class="order-details">
+                        <p><strong>@item.ProductName</strong></p>
+                        <p>@item.ProductDescription</p>
+                        <p><strong>Buyer:</strong> @item.BuyerName (@item.BuyerEmail)</p>
+                        <p><strong>Quantity:</strong> @item.Quantity</p>
+                        <p><strong>Price:</strong> ₹@item.UnitPrice</p>
+                        <p><strong>Total:</strong> ₹@item.TotalPrice</p>
+
+                        <p><strong>Status:</strong></p>
+                        <select class="form-control" @bind="@item.OrderItemStatus">
+                            <option value="Pending">Pending</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Canceled">Canceled</option>
+                        </select>
+
+                        <button class="btn btn-primary btn-sm mt-2" @onclick="() => UpdateOrderStatus(item)">Save</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<OrderItemSellerViewModel> OrderItems = new();
+    private Users users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = (Users)await UserService.GetCurrentUserAsync();
+        OrderItems = (await OrderService.GetOrdersForSellerAsync(users.UserId)).ToList();
+    }
+
+    private async Task UpdateOrderStatus(OrderItemSellerViewModel item)
+    {
+        var success = await OrderService.UpdateOrderItemStatusAsync(item.OrderItemId, item.OrderItemStatus);
+        if (success)
+        {
+            //TODO: Show success message or update UI accordingly
+            StateHasChanged();
+        }
+    }
+}

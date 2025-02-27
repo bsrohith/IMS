@@ -9,16 +9,16 @@
 @inject NavigationManager nav
 @inject IHttpContextAccessor HttpContextAccessor
 
-<h3>@(isAdmin ? "All Orders" : "My Orders")</h3>
+<h3>My Orders</h3>
 
 @if (isLoading)
 {
-    <p>Loading orders...</p>
+    <p>Loading your orders...</p>
 }
-else if ((isAdmin && !adminOrders.Any()) || (!isAdmin && !orders.Any()))
+else if (!orders.Any())
 {
     <div class="alert alert-info">
-        @(isAdmin ? "There are no orders in the system." : "You don't have any orders yet.")
+        You don't have any orders yet.
     </div>
 }
 else
@@ -26,7 +26,7 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Username</th>
+                @* <th>Username</th> *@
                 <th>Order Date</th>
                 <th>Total</th>
                 <th>Status</th>
@@ -34,42 +34,24 @@ else
             </tr>
         </thead>
         <tbody>
-            @if (isAdmin)
+            @foreach (var order in orders)
             {
-                @foreach (var order in adminOrders)
-                {
-                    <tr>
-
-                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                        <td>&#8377;@order.TotalAmount.ToString("F2")</td>
-                        <td>@order.OrderStatus</td>
-                        <td>
-                            <button @onclick="() => ShowAdminOrderDetails(order)" class="btn btn-sm btn-primary">Details</button>
-                        </td>
-                    </tr>
-                }
-            }
-            else
-            {
-                @foreach (var order in orders)
-                {
-                    <tr>
-                        <td>@order.Username</td>
-                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                        <td>&#8377;@order.TotalAmount.ToString("F2")</td>
-                        <td>@order.OrderStatus</td>
-                        <td>
-                            <button @onclick="() => ShowOrderDetails(order)" class="btn btn-sm btn-primary">Details</button>
-                        </td>
-                    </tr>
-                }
+                <tr>
+                    @* <td>@order.Username</td> *@
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                    <td>&#8377;@order.TotalAmount.ToString("F2")</td>
+                    <td>@order.OrderStatus</td>
+                    <td>
+                        <button @onclick="() => ShowOrderDetails(order)" class="btn btn-sm btn-primary">Details</button>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
 }
 
 <!-- Order Details Modal -->
-@if (selectedOrder != null || selectedAdminOrder != null)
+@if (selectedOrder != null)
 {
     <div class="modal fade show" style="display: block" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -84,49 +66,26 @@ else
                             <h6>Order Information</h6>
                             <table class="table table-sm">
                                 <tbody>
-                                    @if (isAdmin && selectedAdminOrder != null)
-                                    {
-                                        <tr>
-                                            <th>Order ID:</th>
-                                            <td>@selectedAdminOrder.OrderId</td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>Order Date:</th>
-                                            <td>@selectedAdminOrder.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Status:</th>
-                                            <td>@selectedAdminOrder.OrderStatus</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Total Amount:</th>
-                                            <td>$@selectedAdminOrder.TotalAmount.ToString("F2")</td>
-                                        </tr>
-                                    }
-                                    else if (!isAdmin && selectedOrder != null)
-                                    {
-                                        <tr>
-                                            <th>Order ID:</th>
-                                            <td>@selectedOrder.OrderId</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Username:</th>
-                                            <td>@selectedOrder.Username</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Order Date:</th>
-                                            <td>@selectedOrder.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Status:</th>
-                                            <td>@selectedOrder.OrderStatus</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Total Amount:</th>
-                                            <td>$@selectedOrder.TotalAmount.ToString("F2")</td>
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <th>Order ID:</th>
+                                        <td>@selectedOrder.OrderId</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Username:</th>
+                                        <td>@selectedOrder.Username</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Order Date:</th>
+                                        <td>@selectedOrder.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status:</th>
+                                        <td>@selectedOrder.OrderStatus</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Amount:</th>
+                                        <td>$@selectedOrder.TotalAmount.ToString("F2")</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -143,75 +102,65 @@ else
 
 @code {
     private List<OrderView> orders = new();
-    private List<Orders> adminOrders = new();
+
     private bool isLoading = true;
     private OrderView selectedOrder;
-    private Orders selectedAdminOrder;
-    private bool isAdmin = false;
+    private bool hasError = false;
+    private string errorMessage = "";
+    private Users user = new();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             isLoading = true;
-
-            // Get the current user's identity
-            var httpContext = HttpContextAccessor.HttpContext;
-            if (httpContext != null && httpContext.User.Identity.IsAuthenticated)
+            user = await UserService.GetCurrentUserAsync();
+            if(user.UserRole=="Admin")
             {
-                // Check if the user has an Admin role claim
-                isAdmin = httpContext.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Admin");
-                Console.WriteLine($"User is authenticated. Admin status: {isAdmin}");
+                var _orders = (await OrderService.GetAllOrders()).ToList<Orders>();
+                foreach (var order in _orders)
+                {
+                    OrderView orderView = new OrderView();
+                    orderView.OrderId = order.OrderId;
+                    orderView.OrderDate = order.OrderDate;
+                    orderView.OrderStatus = order.OrderStatus;
+                    orderView.TotalAmount = order.TotalAmount;
+                    orders.Add(orderView);
+                }
 
-                // Get orders based on user role
-                if (isAdmin)
-                {
-                    // Get all orders for admin users
-                    Console.WriteLine("Fetching all orders for admin");
-                    adminOrders = (await OrderService.GetAllOrders()).ToList();
-                    Console.WriteLine($"Retrieved {adminOrders.Count} admin orders");
-                }
-                else
-                {
-                    // Get only the current user's orders for regular users
-                    Console.WriteLine("Fetching user-specific orders");
-                    orders = (await OrderService.GetOrdersForCurrentUserAsync()).ToList();
-                    Console.WriteLine($"Retrieved {orders.Count} user orders");
-                }
+
             }
             else
             {
-                Console.WriteLine("User is not authenticated, redirecting to login");
-                nav.NavigateTo("/login");
+                // Convert IEnumerable to List with ToList()
+                var orderResults = await OrderService.GetOrdersForCurrentUserAsync();
+                orders = orderResults.ToList();
             }
+           
+
+            Console.WriteLine($"Retrieved {orders.Count} orders");
         }
         catch (Exception ex)
         {
+            hasError = true;
+            errorMessage = ex.Message;
             Console.WriteLine($"Error loading orders: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            // Don't redirect, just show an error if something went wrong
         }
         finally
         {
             isLoading = false;
-            StateHasChanged();
         }
     }
 
     private void ShowOrderDetails(OrderView order)
     {
         selectedOrder = order;
-        selectedAdminOrder = null;
-    }
-
-    private void ShowAdminOrderDetails(Orders order)
-    {
-        selectedAdminOrder = order;
-        selectedOrder = null;
     }
 
     private void CloseModal()
     {
         selectedOrder = null;
-        selectedAdminOrder = null;
     }
 }

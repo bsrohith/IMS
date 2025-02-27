@@ -28,6 +28,7 @@ namespace InventoryManagement.Models.ViewModel
         public string ProductDescription { get; set; } = string.Empty;
 
         public string ProductPhoto { get; set; } = string.Empty;
+        public int SellerId { get; set; }
     }
 
 }

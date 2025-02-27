@@ -34,5 +34,10 @@ namespace InventoryManagement.Application.Services
         {
             await _productRepository.UpdateProductStockQuantity(productid, quantity);
         }
+
+        public async Task<List<ProductViewModel>> GetAllProductsWithDetailWithUserAsync(int userId)
+        {
+           return (List<ProductViewModel>)await _productRepository.GetAllProductsWithDetailWithUserAsync(userId);
+        }
     }
 }

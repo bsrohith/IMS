@@ -66,7 +66,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <img src="data:image/png;base64,@selectedProduct.ProductPhoto" class="img-fluid rounded" alt="@selectedProduct.ProductName"
-                                     onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
+                                onerror="this.onerror=null; this.src='/Images/errorimage.jpg';">
                             </div>
                             <div class="col-md-8">
                                 <p class="text-muted">@selectedProduct.ProductDescription</p>
@@ -92,6 +92,7 @@
     private List<ProductViewModel> products = new();
     private List<Categories> Categories = new();
     private List<Suppliers> Suppliers = new();
+    Users users = new();
     private bool isAdding = false;
 
     private int selectedProductId;
@@ -99,7 +100,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        users = (Users)await UserService.GetCurrentUserAsync();
+        if(users.UserRole.Equals(CommonStrings.Admin,StringComparison.OrdinalIgnoreCase))
+        {
+            products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        }
+        else{
+            products = (await ProductService.GetAllProductsWithDetailWithUserAsync(users.UserId)).ToList();
+        }
         Categories = await CategoryService.GetAllCategories();
         Suppliers = await SupplierService.GetAllSuppliers();
     }

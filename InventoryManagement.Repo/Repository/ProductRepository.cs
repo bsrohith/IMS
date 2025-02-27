@@ -69,6 +69,21 @@ namespace InventoryManagement.Repo.Repository
 
         }
 
+        public async Task<IEnumerable<ProductViewModel>> GetAllProductsWithDetailWithUserAsync(int userId)
+        {
+            using var connection = _dbContext.CreateConnection();
+
+            var query = @"SELECT p.ProductId, p.ProductName, p.Price, p.StockQuantity, 
+                         p.CategoryId, p.SupplierId, p.CreatedAt, 
+                         pd.ProductDescription, pd.ProductPhoto
+                  FROM Products p
+                  LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
+                  WHERE p.UserId = @UserId"; // Fetch only the user's products
+
+            return await connection.QueryAsync<ProductViewModel>(query, new { UserId = userId });
+        }
+
+
         public async Task<ProductViewModel> GetProductViewModeByIdAsync(int id)
         {
             using var connection = _dbContext.CreateConnection();

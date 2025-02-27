@@ -78,9 +78,9 @@ namespace InventoryManagement.Repo.Repository
                          pd.ProductDescription, pd.ProductPhoto
                   FROM Products p
                   LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
-                  WHERE p.UserId = @UserId"; // Fetch only the user's products
+                  WHERE p.SupplierId = @SupplierId"; 
 
-            return await connection.QueryAsync<ProductViewModel>(query, new { UserId = userId });
+            return await connection.QueryAsync<ProductViewModel>(query, new { SupplierId = userId });
         }
 
 

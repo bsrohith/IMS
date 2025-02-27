@@ -92,7 +92,7 @@ namespace InventoryManagement.Repo.Repository
                 {
                     UserId = userid,
                     TotalAmount = checkoutItems.Sum(chk => chk.Quantity * chk.Price),
-                    OrderStatus = CommonStrings.OrderCreated,
+                    OrderStatus = CommonStrings.OrderStatusCreated,
                 };
 
                 var orderId = await CreateOrder(order, transaction);
@@ -113,7 +113,7 @@ namespace InventoryManagement.Repo.Repository
         {
             foreach (var item in checkoutItems)
             {
-                var query = "INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice) VALUES (@OrderId, @ProductId, @Quantity, @UnitPrice)";
+                var query = "INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice,OrderItemStatus) VALUES (@OrderId, @ProductId, @Quantity, @UnitPrice,@OrderItemStatus)";
                 await transaction.Connection.ExecuteAsync(query, new
                 {
                     OrderId = orderId,
@@ -121,8 +121,63 @@ namespace InventoryManagement.Repo.Repository
                     Quantity = item.Quantity,
                     UnitPrice = item.Price,
                     TotalPrice = item.Quantity * item.Price,
+                    OrderItemStatus = CommonStrings.OrderItemStatusCreated
                 }, transaction);
             }
+        }
+
+        public async Task<IEnumerable<OrderItemViewModel>> GetOrderItemsByOrderId(int orderId)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = @"SELECT oi.Id AS OrderItemId, oi.OrderId, oi.ProductId, oi.Quantity, 
+                           oi.UnitPrice, (oi.Quantity * oi.UnitPrice) AS TotalPrice, 
+                           COALESCE(oi.OrderItemStatus, '') AS OrderStatus,
+                           p.ProductName, pd.ProductDescription, pd.ProductPhoto, 
+                           COALESCE(s.SupplierName, '') AS SellerName, 
+	                       COALESCE(s.ContactEmail, '') AS SellerEmail
+                        FROM OrderItems oi
+                        LEFT JOIN Products p ON oi.ProductId = p.ProductId
+                        LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
+                        LEFT JOIN Suppliers s ON p.SupplierId =s.SupplierId
+                        WHERE oi.OrderId = @OrderId";
+            return await connection.QueryAsync<OrderItemViewModel>(query, new { OrderId = orderId });
+        }
+
+        public async Task<bool> CancelOrderItemAsync(int orderItemId)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = @"UPDATE OrderItems SET OrderItemStatus = '" + CommonStrings.OrderItemStatusCancelled + "' WHERE Id = @OrderItemId";
+            var rowsAffected = await connection.ExecuteAsync(query, new { OrderItemId = orderItemId });
+            return rowsAffected > 0;
+        }
+
+        public async Task<IEnumerable<OrderItemSellerViewModel>> GetOrdersForSellerAsync(int sellerId)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = @"SELECT  o.OrderId, o.UserId, o.OrderDate,
+                            oi.Id AS OrderItemId, oi.ProductId, oi.Quantity, oi.UnitPrice, oi.OrderItemStatus,
+                            p.ProductName, pd.ProductDescription, pd.ProductPhoto,
+                            u.Username AS BuyerName, u.Email AS BuyerEmail,
+			                u.UserAddress, u.City
+                        FROM OrderItems oi
+                        JOIN Orders o ON oi.OrderId = o.OrderId
+                        JOIN Products p ON oi.ProductId = p.ProductId
+                        JOIN Suppliers s ON p.SellerId = s.UserId
+                        LEFT JOIN ProductDetails pd ON p.ProductId = pd.ProductId
+                        JOIN Users u ON o.UserId = u.UserId
+                        WHERE s.UserId = @SellerId
+                        ORDER BY o.OrderDate DESC";
+
+            return await connection.QueryAsync<OrderItemSellerViewModel>(query, new { SellerId = sellerId });
+        }
+
+        public async Task<bool> UpdateOrderItemStatusAsync(int orderItemId, string newStatus)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = "UPDATE OrderItems SET OrderItemStatus = @NewStatus WHERE Id = @OrderItemId";
+
+            var result = await connection.ExecuteAsync(query, new { OrderItemId = orderItemId, NewStatus = newStatus });
+            return result > 0;
         }
     }
 }

@@ -26,9 +26,10 @@
                         </div>
                         <div class="nav-item px-3">
                             <NavLink class="nav-link" href="/errors">
-                                <span class="oi oi-warning"></span> Error Logs
+                                <span class="oi oi-warning"></span> Monitoring
                             </NavLink>
                         </div>
+
                         <div class="nav-item px-3">
                             <NavLink class="nav-link" href="/admin/settings">
                                 <span class="bi bi-gear-fill" aria-hidden="true"></span> Settings
@@ -63,8 +64,8 @@
                 <AuthorizeView Roles="Supplier">
                     <Authorized Context="supplierAuth">
                         <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="inventory">
-                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Inventory
+                            <NavLink class="nav-link" href="products" Match="NavLinkMatch.All">
+                                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Manage Products
                             </NavLink>
                         </div>
                     </Authorized>
@@ -77,11 +78,7 @@
                     </NavLink>
                 </div>
 
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="logout">
-                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
-                    </NavLink>
-                </div>
+
             </Authorized>
             <NotAuthorized>
                 <div class="nav-item px-3">

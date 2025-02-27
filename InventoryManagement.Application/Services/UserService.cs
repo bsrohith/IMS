@@ -64,7 +64,7 @@ namespace InventoryManagement.Application.Services
                 UserAddress = model.UserAddress,
                 City = model.City,
                 PasswordHash = HashPassword(model.Password),
-                UserRole = "User", // Default role
+                UserRole = model.UserRole, // Default role
                 CreatedAt = DateTime.Now
             };
 

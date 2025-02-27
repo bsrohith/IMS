@@ -1,24 +1,26 @@
-﻿
-@if (IsVisible)
+﻿@if (IsVisible)
 {
-    <div class="alert @AlertType">
-        <span>@Message</span>
+    <div class="alert @AlertType" style="position: @(IsFixed ? "fixed" : "relative"); top: @(IsFixed ? "20px" : "auto");
+         left: @(IsFixed ? "50%" : "auto"); transform: @(IsFixed ? "translateX(-50%)" : "none");
+         z-index: @(IsFixed ? "9999" : "1"); width: @(IsFixed ? "80%" : "auto");
+         max-width: @(IsFixed ? "500px" : "none");">
+        <span><strong>@Message</strong></span>
         <button class="btn-close" style="float:right" @onclick="Hide"></button>
     </div>
 }
 
-
 @code {
     [Parameter]
     public string Message { get; set; }
-
     public bool IsVisible { get; set; }
     public string AlertType { get; set; }
+    public bool IsFixed { get; set; } = false;
+    private System.Threading.Timer? _autoHideTimer;
 
     public void ShowSuccess(string message)
     {
         AlertType = "alert-success";
-        Show(message);
+        Show(message, true);
     }
 
     public void ShowFailed(string message)
@@ -27,16 +29,44 @@
         Show(message);
     }
 
-    private void Show(string message)
+    public void ShowSuccessFixed(string message)
+    {
+        AlertType = "alert-success";
+        IsFixed = true;
+        Show(message, true);
+    }
+
+    private void Show(string message, bool autoHide = false)
     {
         Message = message;
         IsVisible = true;
         StateHasChanged();
+
+        if (autoHide)
+        {
+            // Dispose of any existing timer
+            _autoHideTimer?.Dispose();
+
+            // Create a new timer to auto-hide the alert after 3 seconds
+            _autoHideTimer = new System.Threading.Timer(_ =>
+            {
+                InvokeAsync(() =>
+                {
+                    Hide();
+                });
+            }, null, 3000, Timeout.Infinite);
+        }
     }
 
-    private void Hide()
+    public void Hide()
     {
         IsVisible = false;
+        IsFixed = false; // Reset the fixed position when hiding
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _autoHideTimer?.Dispose();
     }
 }

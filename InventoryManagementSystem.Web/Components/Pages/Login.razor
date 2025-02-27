@@ -4,16 +4,13 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authentication.Cookies
 @inject IUserService UserService
-
-
 @inject NavigationManager nav
+@inject IJSRuntime JSRuntime
 
 <h1>Login</h1>
 <div class="row">
     <div class="col-md-4">
-
         <Alert @ref="alert" />
-
         <section>
             <EditForm Model="Input" method="post" OnValidSubmit="OnLogin" FormName="Login">
                 <DataAnnotationsValidator />
@@ -38,37 +35,69 @@
 
 @code {
     private Alert alert;
+    private bool isRedirecting = false;
 
     [SupplyParameterFromForm]
     private LoginModel Input { get; set; } = new();
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Check if there's a key parameter in the URL for a successful login redirect
+            var uri = new Uri(nav.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+            if (query["key"] != null && !string.IsNullOrEmpty(query["key"]) &&
+                query["showAlert"] == "success")
+            {
+                // Show success message
+                alert.ShowSuccess("Login successful! Redirecting...");
+                StateHasChanged();
+
+                // Determine redirect location (default to /products if not specified)
+                string redirectTo = !string.IsNullOrEmpty(query["redirect"])
+                    ? query["redirect"]
+                    : "/products";
+
+                // Delay the navigation to allow the success message to be seen
+                await Task.Delay(2000);
+
+                // Remove the showAlert parameter to prevent showing the alert again after redirect
+                nav.NavigateTo(redirectTo);
+            }
+        }
+    }
+
     public async Task OnLogin()
     {
+        if (isRedirecting) return;
+
         var user = await UserService.Verify(Input.Email, Input.PasswordHash);
         if (user is null)
         {
-            //alert
             alert.ShowFailed("Invalid Email or Password");
             return;
         }
 
+        // Set flag to prevent multiple redirects
+        isRedirecting = true;
+
+        // Create authentication claims
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.Email),
             new Claim(ClaimTypes.Role, user.UserRole),
             new Claim(ClaimTypes.Surname, user.Username)
         };
-
         var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
         ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimIdentity);
+
+        // Create login key
         Guid key = Guid.NewGuid();
         AuthMiddleware.Logins[key] = claimsPrincipal;
 
-        nav.NavigateTo($"/login?key={key}", true);
-        // nav.NavigateTo($"/login?key={key}&redirect=/products", true);
-
+        // Navigate to login with key and showAlert parameter
+        nav.NavigateTo($"/login?key={key}&showAlert=success", true);
     }
-
-
 }

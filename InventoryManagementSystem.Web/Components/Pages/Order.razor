@@ -33,7 +33,7 @@ else
                 <tr>
                     <td>@order.Username</td>
                     <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                    <td>$@order.TotalAmount.ToString("F2")</td>
+                    <td>&#8377;@order.TotalAmount.ToString("F2")</td>
                     <td>@order.OrderStatus</td>
                     <td>
                         <button @onclick="() => ShowOrderDetails(order)" class="btn btn-sm btn-primary">Details</button>

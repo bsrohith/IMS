@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using InventoryManagement.Common;
 using InventoryManagement.Models.Entities;
 using InventoryManagement.Models.ViewModel;
 using InventoryManagement.Repo.Data;
@@ -120,6 +121,16 @@ namespace InventoryManagement.Repo.Repository
             var query = "SELECT * FROM Suppliers WHERE UserId = @UserId";
             var suppliers = await connection.QueryAsync<Suppliers>(query, new { UserId = userId });
             return suppliers.ToList();
+        }
+
+        public async Task<bool> CheckProductExistsInOrderItem(int productid)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = @"SELECT COUNT(ProductId) FROM OrderItems
+                        WHERE ProductId = @ProductId AND (OrderItemStatus IS NOT NULL AND
+                        OrderItemStatus NOT IN ('"+CommonStrings.OrderItemStatusDelivered+"', '"+CommonStrings.OrderItemStatusCancelled+"'))";
+            var result = await connection.QuerySingleAsync<int>(query, new { ProductId = productid });
+            return result > 0;
         }
     }
 }

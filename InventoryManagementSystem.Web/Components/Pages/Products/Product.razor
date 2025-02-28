@@ -16,18 +16,26 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var product in products)
+        @if(products.Any())
         {
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.ProductName</td>
+                    <td>@Categories.FirstOrDefault(cat => cat.CategoryId.Equals(product.CategoryId)).CategoryName</td>
+                    <td>&#8377;@product.Price</td>
+                    <td>@product.StockQuantity</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ShowDetails(product)">Detail</button>
+                        <button class="btn btn-warning btn-sm" @onclick="() => EditProduct(product.ProductId)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(product.ProductId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+        else{
             <tr>
-                <td>@product.ProductName</td>
-                <td>@Categories.FirstOrDefault(cat => cat.CategoryId.Equals(product.CategoryId)).CategoryName</td>
-                <td>&#8377;@product.Price</td>
-                <td>@product.StockQuantity</td>
-                <td>
-                    <button class="btn btn-primary btn-sm" @onclick="() => ShowDetails(product)">Detail</button>
-                    <button class="btn btn-warning btn-sm" @onclick="() => EditProduct(product.ProductId)">Edit</button>
-                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmDelete(product.ProductId)">Delete</button>
-                </td>
+                <td colspan="6" class="text-center text-danger">No product(s) found.</td>
             </tr>
         }
     </tbody>
@@ -86,6 +94,7 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 }
+<Toast @ref="toastService.ToastComponent" Duration="6000" IconClass="bi bi-check" Persist="true" />
 
 
 @code {
@@ -137,16 +146,24 @@
 
     private async void DeleteConfirmed()
     {
-        await ProductDetailService.DeleteProductDetailAsync(selectedProductId);
-        await ProductService.DeleteProductAsync(selectedProductId);
-        if (users.UserRole.Equals(CommonStrings.Admin, StringComparison.OrdinalIgnoreCase))
+        var isExist = await ProductService.CheckProductExistsInOrderItem(selectedProductId);
+        if(isExist)
         {
-            products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+            toastService.ShowErrorToast(CommonStrings.Failure, CommonStrings.ProductDeletionFail);
         }
-        else
-        {
-            products = (await ProductService.GetAllProductsWithDetailWithUserAsync(users.UserId)).ToList();
+        else{
+            await ProductDetailService.DeleteProductDetailAsync(selectedProductId);
+            await ProductService.DeleteProductAsync(selectedProductId);
+            if (users.UserRole.Equals(CommonStrings.Admin, StringComparison.OrdinalIgnoreCase))
+            {
+                products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+            }
+            else
+            {
+                products = (await ProductService.GetAllProductsWithDetailWithUserAsync(users.UserId)).ToList();
+            }
         }
+
         isDeleteConfirmationVisible = false;
         selectedProductId = 0;
         StateHasChanged();

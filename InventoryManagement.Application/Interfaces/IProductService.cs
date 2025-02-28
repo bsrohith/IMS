@@ -19,9 +19,7 @@ namespace InventoryManagement.Application.Interfaces
         Task<ProductViewModel> GetProductViewModeByIdAsync(int id);
         Task UpdateProductStockQuantity(int productid, int quantity);
         Task<Suppliers> GetSupplierByUserIdAsync(int userId);
-
         Task<List<ProductViewModel>> GetAllProductsWithDetailWithUserAsync(int userId);
-
-
+        Task<bool> CheckProductExistsInOrderItem(int productid);
     }
 }

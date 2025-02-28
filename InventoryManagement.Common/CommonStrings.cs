@@ -33,5 +33,11 @@
 
         //Connection String
         public const string ConnectionString = @"Server=(localdb)\\MSSQLLocalDB;Database=ims;Trusted_Connection=True;MultipleActiveResultSets=True";
+
+        //Text
+        public const string Failure = "Failure";
+        public const string Success = "Success";
+
+        public const string ProductDeletionFail = "Cannot delete product as it is having existsing order(s)";
     }
 }

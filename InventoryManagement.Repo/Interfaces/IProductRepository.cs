@@ -19,11 +19,7 @@ namespace InventoryManagement.Repo.Interfaces
         Task<int> GetStockQuantity(int productId);
         Task UpdateProductStockQuantity(int productid, int quantity);
         Task<IEnumerable<ProductViewModel>> GetAllProductsWithDetailWithUserAsync(int userId);
-
         Task<List<Suppliers>> GetSupplierByUserIdAsync(int userId);
-
-        
-
+        Task<bool> CheckProductExistsInOrderItem(int productid);
     }
-
 }

@@ -47,5 +47,9 @@ namespace InventoryManagement.Application.Services
             return suppliers.FirstOrDefault();
         }
 
+        public async Task<bool> CheckProductExistsInOrderItem(int productid)
+        {
+            return await _productRepository.CheckProductExistsInOrderItem(productid);
+        }
     }
 }

@@ -158,7 +158,7 @@
                     StockQuantity = Product.StockQuantity,
                     CreatedAt = DateTime.Now,
                     SupplierId = Product.SupplierId,
-                    SellerId = user.UserId
+                    SellerId = Suppliers.FirstOrDefault(sup=> sup.SupplierId.Equals(Product.SupplierId)).UserId
                 });
 
             await ProductDetailService.AddProductDetailAsync(new ProductDetails()
@@ -189,7 +189,7 @@
                     StockQuantity = Product.StockQuantity,
                     CreatedAt = DateTime.Now,
                     SupplierId = Product.SupplierId,
-                    SellerId = user.UserId
+                    SellerId = Suppliers.FirstOrDefault(sup => sup.SupplierId.Equals(Product.SupplierId)).UserId
                 });
 
             await ProductDetailService.UpdateProductDetailAsync(new ProductDetails()

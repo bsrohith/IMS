@@ -139,7 +139,14 @@
     {
         await ProductDetailService.DeleteProductDetailAsync(selectedProductId);
         await ProductService.DeleteProductAsync(selectedProductId);
-        products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        if (users.UserRole.Equals(CommonStrings.Admin, StringComparison.OrdinalIgnoreCase))
+        {
+            products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+        }
+        else
+        {
+            products = (await ProductService.GetAllProductsWithDetailWithUserAsync(users.UserId)).ToList();
+        }
         isDeleteConfirmationVisible = false;
         selectedProductId = 0;
         StateHasChanged();

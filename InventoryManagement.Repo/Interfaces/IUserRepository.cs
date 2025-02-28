@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InventoryManagement.Models.Entities;
+using InventoryManagement.Models.ViewModel;
 
 namespace InventoryManagement.Repo.Interfaces
 {
@@ -17,5 +18,7 @@ namespace InventoryManagement.Repo.Interfaces
         Task<Users> GetUserByUsernameAsync(string username);
 
         Task<Users>  GetUserByEmailAndPasswordAsync(string email, string passwordHash);
+        Task<Suppliers> GetSupplierDataAsync(int userId);
+        Task<(bool Success, string Message)> UpdateUserProfileAsync(int userId, UserProfileEdit model);
     }
 }

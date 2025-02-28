@@ -11,5 +11,7 @@ namespace InventoryManagement.Repo.Interfaces
     {
         Task<IEnumerable<Suppliers>> GetAllSuppliers();
         Task<Suppliers> GetSuppliersById(int id);
+
+        Task<Suppliers> GetSupplierByUserIdAsync(int userId);
     }
 }

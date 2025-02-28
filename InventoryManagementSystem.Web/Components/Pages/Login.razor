@@ -1,13 +1,11 @@
 ﻿@page "/"
 @page "/login"
-@using System.ComponentModel.DataAnnotations
-@using System.Security.Claims
-@using Microsoft.AspNetCore.Authentication.Cookies
-@using NetcodeHub.Packages.Components.Toast
-@inject IUserService UserService
-@inject NavigationManager nav
+
+
+
+
 @inject IJSRuntime JSRuntime
-@inject ToastService toastService
+
 @rendermode InteractiveServer
 
 <h1>Login</h1>
@@ -51,7 +49,7 @@
         if (firstRender)
         {
             // Check if there's a key parameter in the URL for a successful login redirect
-            var uri = new Uri(nav.Uri);
+            var uri = new Uri(Navigation.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             if (query["key"] != null && !string.IsNullOrEmpty(query["key"]) &&
                 query["showAlert"] == "success")
@@ -69,7 +67,7 @@
                 await Task.Delay(2000);
 
                 // Remove the showAlert parameter to prevent showing the alert again after redirect
-                nav.NavigateTo(redirectTo);
+                Navigation.NavigateTo(redirectTo);
             }
         }
     }
@@ -104,6 +102,6 @@
         toastService.ShowSuccessToast("Login Successful", "Login successful! Redirecting...");
 
         await Task.Delay(2000);
-        nav.NavigateTo($"/login?key={key}&showAlert=success", true);
+        Navigation.NavigateTo($"/login?key={key}&showAlert=success", true);
     }
 }

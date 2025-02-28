@@ -1,8 +1,8 @@
 ﻿@page "/register"
-@using NetcodeHub.Packages.Components.Toast
-@inject IUserService UserService
-@inject NavigationManager NavigationManager
-@inject ToastService toastService
+
+
+
+
 @rendermode InteractiveServer
 
 <h1>Register</h1>
@@ -151,7 +151,7 @@
 
             // Redirect to login page after short delay
             await Task.Delay(2000);
-            NavigationManager.NavigateTo("/login");
+            Navigation.NavigateTo("/login");
         }
         else
         {

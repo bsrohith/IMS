@@ -17,5 +17,7 @@ namespace InventoryManagement.Application.Interfaces
         Task<Users?> Verify(string email, string password);
 
         Task<Users> GetCurrentUserAsync();
+        Task<Suppliers> GetSupplierDataAsync(int userId);
+        Task<(bool Success, string Message)> UpdateUserProfileAsync(int userId, UserProfileEdit model);
     }
 }

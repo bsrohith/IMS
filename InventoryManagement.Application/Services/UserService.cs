@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
+using InventoryManagement.Repo.Repository;
+using InventoryManagement.Models.ViewModel;
 
 
 namespace InventoryManagement.Application.Services
@@ -16,11 +18,13 @@ namespace InventoryManagement.Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ISupplierRepository _supplierRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
+        public UserService(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor,ISupplierRepository supplierRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _supplierRepository = supplierRepository ?? throw new ArgumentNullException(nameof(supplierRepository));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
@@ -164,6 +168,35 @@ namespace InventoryManagement.Application.Services
             // Query the database to get the full user information
             return await _userRepository.GetUserByUsernameAsync(username);
         }
+
+        public async Task<Suppliers> GetSupplierDataAsync(int userId)
+        {
+            try
+            {
+                return await _supplierRepository.GetSupplierByUserIdAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching supplier data: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<(bool Success, string Message)> UpdateUserProfileAsync(int userId, UserProfileEdit model)
+        {
+            try
+            {
+                return await _userRepository.UpdateUserProfileAsync(userId, model);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating user profile: {ex.Message}");
+                return (false, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
+
     }
 
 }

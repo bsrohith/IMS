@@ -30,5 +30,14 @@ namespace InventoryManagement.Repo.Repository
             return await connection.QueryFirstOrDefaultAsync<Suppliers>(
                 "SELECT * FROM Suppliers WHERE SupplierId = @SupplierId", new { SupplierId = id }) ?? new Suppliers();
         }
+
+        public async Task<Suppliers> GetSupplierByUserIdAsync(int userId)
+        {
+            using var connection = _dbContext.CreateConnection();
+            var query = "SELECT * FROM Suppliers WHERE UserId = @UserId";
+            return await connection.QueryFirstOrDefaultAsync<Suppliers>(query, new { UserId = userId });
+        }
     }
+
+
 }

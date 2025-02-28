@@ -1,8 +1,10 @@
 ﻿@page "/profile"
 @using InventoryManagement.Application.Services
+@using NetcodeHub.Packages.Components.Toast
+@using System.ComponentModel.DataAnnotations
 @inject IUserService UserService
-
-
+@inject ToastService toastService
+@rendermode InteractiveServer
 
 @if (isLoading)
 {
@@ -20,40 +22,172 @@ else if (user == null)
 }
 else
 {
-    <div class="card">
-        <div class="card-header">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5>Your Profile Information</h5>
+            <button class="btn btn-primary" @onclick="ToggleEditMode">
+                @(isEditing ? "Cancel" : "Edit Profile")
+            </button>
         </div>
         <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">User ID:</dt>
-                <dd class="col-sm-9">@user.UserId</dd>
+            @if (isEditing)
+            {
+                <EditForm Model="editModel" OnValidSubmit="SaveChanges">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-                <dt class="col-sm-3">Username:</dt>
-                <dd class="col-sm-9">@user.Username</dd>
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">User ID:</label>
+                        <div class="col-sm-9">
+                            <input type="text" readonly class="form-control-plaintext" value="@user.UserId" />
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">Email:</dt>
-                <dd class="col-sm-9">@user.Email</dd>
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Username:</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="editModel.Username" />
+                            <ValidationMessage For="@(() => editModel.Username)" />
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">Address:</dt>
-                <dd class="col-sm-9">@(string.IsNullOrEmpty(user.UserAddress) ? "Not provided" : user.UserAddress)</dd>
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Email:</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="editModel.Email" />
+                            <ValidationMessage For="@(() => editModel.Email)" />
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">City:</dt>
-                <dd class="col-sm-9">@(string.IsNullOrEmpty(user.City) ? "Not provided" : user.City)</dd>
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Address:</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="editModel.UserAddress" />
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">Role:</dt>
-                <dd class="col-sm-9">@user.UserRole</dd>
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">City:</label>
+                        <div class="col-sm-9">
+                            <InputText class="form-control" @bind-Value="editModel.City" />
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">Account Created:</dt>
-                <dd class="col-sm-9">@user.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
-            </dl>
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Role:</label>
+                        <div class="col-sm-9">
+                            <input type="text" readonly class="form-control-plaintext" value="@user.UserRole" />
+                        </div>
+                    </div>
+
+                    @if (user.UserRole == "Supplier" && supplierData != null)
+                    {
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Supplier Name:</label>
+                            <div class="col-sm-9">
+                                <InputText class="form-control" @bind-Value="editModel.SupplierName" />
+                                <ValidationMessage For="@(() => editModel.SupplierName)" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label">Phone Number:</label>
+                            <div class="col-sm-9">
+                                <InputText class="form-control" @bind-Value="editModel.PhoneNumber" />
+                                <ValidationMessage For="@(() => editModel.PhoneNumber)" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Account Created:</label>
+                        <div class="col-sm-9">
+                            <input type="text" readonly class="form-control-plaintext" value="@user.CreatedAt.ToString("yyyy-MM-dd HH:mm")" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">New Password (Optional):</label>
+                        <div class="col-sm-9">
+                            <InputText type="password" class="form-control" @bind-Value="editModel.NewPassword" />
+                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Confirm New Password:</label>
+                        <div class="col-sm-9">
+                            <InputText type="password" class="form-control" @bind-Value="editModel.ConfirmNewPassword" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-3 col-form-label">Current Password:</label>
+                        <div class="col-sm-9">
+                            <InputText type="password" class="form-control" @bind-Value="editModel.CurrentPassword" />
+                            <ValidationMessage For="@(() => editModel.CurrentPassword)" />
+                            <small class="form-text text-muted">Required to save changes</small>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary me-md-2" @onclick="ToggleEditMode">Cancel</button>
+                        <button type="submit" class="btn btn-success" disabled="@isSaving">
+                            @if (isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span> Saving...</span>
+                            }
+                            else
+                            {
+                                <span>Save Changes</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            }
+            else
+            {
+                <dl class="row">
+                    <dt class="col-sm-3">User ID:</dt>
+                    <dd class="col-sm-9">@user.UserId</dd>
+                    <dt class="col-sm-3">Username:</dt>
+                    <dd class="col-sm-9">@user.Username</dd>
+                    <dt class="col-sm-3">Email:</dt>
+                    <dd class="col-sm-9">@user.Email</dd>
+                    <dt class="col-sm-3">Address:</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(user.UserAddress) ? "Not provided" : user.UserAddress)</dd>
+                    <dt class="col-sm-3">City:</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(user.City) ? "Not provided" : user.City)</dd>
+                    <dt class="col-sm-3">Role:</dt>
+                    <dd class="col-sm-9">@user.UserRole</dd>
+
+                    @if (user.UserRole == "Supplier" && supplierData != null)
+                    {
+                        <dt class="col-sm-3">Supplier Name:</dt>
+                        <dd class="col-sm-9">@supplierData.SupplierName</dd>
+                        <dt class="col-sm-3">Phone Number:</dt>
+                        <dd class="col-sm-9">@supplierData.PhoneNumber</dd>
+                    }
+
+                    <dt class="col-sm-3">Account Created:</dt>
+                    <dd class="col-sm-9">@user.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                </dl>
+            }
         </div>
     </div>
 }
 
+<!-- Add the Toast component -->
+<Toast @ref="toastService.ToastComponent" Duration="6000" IconClass="bi bi-check" Persist="true" />
+
 @code {
     private Users user;
+    private Suppliers supplierData;
     private bool isLoading = true;
+    private bool isEditing = false;
+    private bool isSaving = false;
+    private UserProfileEdit editModel = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,6 +195,14 @@ else
         {
             isLoading = true;
             user = await UserService.GetCurrentUserAsync();
+
+            if (user != null && user.UserRole == "Supplier")
+            {
+                supplierData = await UserService.GetSupplierDataAsync(user.UserId);
+            }
+
+            // Initialize edit model with current values
+            InitializeEditModel();
         }
         catch (Exception ex)
         {
@@ -71,4 +213,119 @@ else
             isLoading = false;
         }
     }
-}
+
+    private void InitializeEditModel()
+    {
+        if (user == null) return;
+
+        editModel = new UserProfileEdit
+            {
+                Username = user.Username,
+                Email = user.Email,
+                UserAddress = user.UserAddress ?? "",
+                City = user.City ?? "",
+                UserRole = user.UserRole
+            };
+
+        if (supplierData != null)
+        {
+            editModel.SupplierName = supplierData.SupplierName;
+            editModel.PhoneNumber = supplierData.PhoneNumber;
+        }
+    }
+
+    private void ToggleEditMode()
+    {
+        if (isEditing)
+        {
+            // Reset edit model to original values
+            InitializeEditModel();
+        }
+
+        isEditing = !isEditing;
+    }
+
+    private async Task SaveChanges()
+    {
+        try
+        {
+            isSaving = true;
+
+            // Validate supplier fields if role is Supplier
+            if (user.UserRole == "Supplier")
+            {
+                if (string.IsNullOrWhiteSpace(editModel.SupplierName))
+                {
+                    toastService.ShowErrorToast("Validation Error", "Supplier Name is required.");
+                    isSaving = false;
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(editModel.PhoneNumber))
+                {
+                    toastService.ShowErrorToast("Validation Error", "Phone Number is required.");
+                    isSaving = false;
+                    return;
+                }
+            }
+
+            // Validate passwords if changing password
+            if (!string.IsNullOrEmpty(editModel.NewPassword))
+            {
+                if (editModel.NewPassword != editModel.ConfirmNewPassword)
+                {
+                    toastService.ShowErrorToast("Validation Error", "New passwords do not match.");
+                    isSaving = false;
+                    return;
+                }
+
+                if (editModel.NewPassword.Length < 8)
+                {
+                    toastService.ShowErrorToast("Validation Error", "Password must be at least 8 characters long.");
+                    isSaving = false;
+                    return;
+                }
+            }
+
+            // Verify current password is provided
+            if (string.IsNullOrWhiteSpace(editModel.CurrentPassword))
+            {
+                toastService.ShowErrorToast("Validation Error", "Current password is required to save changes.");
+                isSaving = false;
+                return;
+            }
+
+            // Call service to update user profile
+            var result = await UserService.UpdateUserProfileAsync(user.UserId, editModel);
+
+            if (result.Success)
+            {
+                toastService.ShowSuccessToast("Profile Updated", result.Message);
+
+                // Reload user data
+                user = await UserService.GetCurrentUserAsync();
+
+                if (user != null && user.UserRole == "Supplier")
+                {
+                    supplierData = await UserService.GetSupplierDataAsync(user.UserId);
+                }
+
+                // Exit edit mode
+                isEditing = false;
+            }
+            else
+            {
+                toastService.ShowErrorToast("Update Failed", result.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowErrorToast("Error", $"An error occurred: {ex.Message}");
+            Console.WriteLine($"Error updating profile: {ex.Message}");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+    }

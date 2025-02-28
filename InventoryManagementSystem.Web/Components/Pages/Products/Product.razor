@@ -21,7 +21,7 @@
             <tr>
                 <td>@product.ProductName</td>
                 <td>@Categories.FirstOrDefault(cat => cat.CategoryId.Equals(product.CategoryId)).CategoryName</td>
-                <td>@product.Price</td>
+                <td>&#8377;@product.Price</td>
                 <td>@product.StockQuantity</td>
                 <td>
                     <button class="btn btn-primary btn-sm" @onclick="() => ShowDetails(product)">Detail</button>
@@ -70,7 +70,7 @@
                             </div>
                             <div class="col-md-8">
                                 <p class="text-muted">@selectedProduct.ProductDescription</p>
-                                <h5 class="text-success">$@selectedProduct.Price</h5>
+                                <h5 class="text-success">&#8377;@selectedProduct.Price</h5>
                                 <p><strong>Stock:</strong> @selectedProduct.StockQuantity</p>
                                 <p><strong>Category:</strong> @Categories.FirstOrDefault(cat => cat.CategoryId.Equals(selectedProduct.CategoryId)).CategoryName</p>
                                 <p><strong>Supplier:</strong> @Suppliers.FirstOrDefault(sup => sup.SupplierId.Equals(selectedProduct.SupplierId)).SupplierName</p>

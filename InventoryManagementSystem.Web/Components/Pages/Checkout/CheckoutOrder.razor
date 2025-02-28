@@ -1,5 +1,14 @@
 ﻿@page "/checkout/{userid:int}"
+@using NetcodeHub.Packages.Components.Toast
+@inject ToastService toastService
+@inject IUserService UserService
+@inject ICheckoutService CheckoutService
+@inject IOrderService OrderService
+@inject IProductService ProductService
+@inject IInventoryService InventoryService
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
+
 <h3>Checkout</h3>
 
 @if (CheckoutItems == null || !CheckoutItems.Any())
@@ -26,14 +35,14 @@ else
                     <td>@item.Price.ToString("C")</td>
                     <td>
                         <button class="btn btn-sm btn-outline-secondary"
-                        @onclick="() => UpdateQuantity(item.CheckoutId, item.Quantity - 1, item.ProductId)"
-                        disabled="@(item.Quantity <= 1)">
+                                @onclick="() => UpdateQuantity(item.CheckoutId, item.Quantity - 1, item.ProductId)"
+                                disabled="@(item.Quantity <= 1)">
                             -
                         </button>
                         @item.Quantity
                         <button class="btn btn-sm btn-outline-secondary"
-                        @onclick="() => UpdateQuantity(item.CheckoutId, item.Quantity + 1, item.ProductId)"
-                        disabled="@(item.Quantity >= item.StockQuantity)">
+                                @onclick="() => UpdateQuantity(item.CheckoutId, item.Quantity + 1, item.ProductId)"
+                                disabled="@(item.Quantity >= item.StockQuantity)">
                             +
                         </button>
                     </td>
@@ -52,15 +61,31 @@ else
     </div>
 }
 
+<!-- Add the Toast component -->
+<Toast @ref="toastService.ToastComponent" Duration="6000" IconClass="bi bi-check" Persist="true" />
+
 @code {
     [Parameter] public int userId { get; set; }
 
     private List<CheckoutItem> CheckoutItems = new();
     private Users users = new();
+
     protected override async Task OnInitializedAsync()
     {
-        users = (Users)await UserService.GetCurrentUserAsync();
-        CheckoutItems = await CheckoutService.GetCheckoutItemsAsync(userId);
+        try
+        {
+            users = (Users)await UserService.GetCurrentUserAsync();
+            CheckoutItems = await CheckoutService.GetCheckoutItemsAsync(userId);
+
+            if (CheckoutItems == null || !CheckoutItems.Any())
+            {
+                toastService.ShowInfoToast("Empty Cart", "Your shopping cart is empty.");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowErrorToast("Error", $"Failed to load checkout items: {ex.Message}");
+        }
     }
 
     private async Task UpdateQuantity(int checkoutId, int newQuantity, int productId)
@@ -68,47 +93,88 @@ else
         var item = CheckoutItems.FirstOrDefault(i => i.CheckoutId == checkoutId);
         if (item == null || newQuantity <= 0 || newQuantity > item.StockQuantity) return;
 
-        var success = await CheckoutService.UpdateCheckoutItemQuantityAsync(checkoutId, newQuantity, productId);
-        if (success)
+        try
         {
-            item.Quantity = newQuantity;
-            StateHasChanged();
+            var success = await CheckoutService.UpdateCheckoutItemQuantityAsync(checkoutId, newQuantity, productId);
+            if (success)
+            {
+                item.Quantity = newQuantity;
+                toastService.ShowSuccessToast("Quantity Updated", $"{item.ProductName} quantity updated to {newQuantity}.");
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.ShowErrorToast("Update Failed", "Failed to update quantity. Please try again.");
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowErrorToast("Error", $"Failed to update quantity: {ex.Message}");
         }
     }
 
     private async Task RemoveItem(int checkoutId)
     {
-        await CheckoutService.RemoveFromCheckoutAsync(checkoutId);
-        CheckoutItems.RemoveAll(i => i.CheckoutId == checkoutId);
-        StateHasChanged();
+        try
+        {
+            var item = CheckoutItems.FirstOrDefault(i => i.CheckoutId == checkoutId);
+            var productName = item?.ProductName ?? "Item";
+
+            await CheckoutService.RemoveFromCheckoutAsync(checkoutId);
+            CheckoutItems.RemoveAll(i => i.CheckoutId == checkoutId);
+
+            toastService.ShowSuccessToast("Item Removed", $"{productName} has been removed from your cart.");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowErrorToast("Error", $"Failed to remove item: {ex.Message}");
+        }
     }
+
     private async Task ConfirmOrder()
     {
-        var items = (List<CheckoutItem>)await OrderService.ConfirmOrderAsync(users.UserId);
-        if (items.Count() > 0)
+        try
         {
-            foreach (var item in items)
-            {
-                Products product = await ProductService.GetProductByIdAsync(item.ProductId);
+            var items = (List<CheckoutItem>)await OrderService.ConfirmOrderAsync(users.UserId);
 
-                var inventory = new InventoryTransactionQueryViewModel()
-                    {
-                        ProductId = item.ProductId,
-                        NewQuantity = product.StockQuantity - item.Quantity,
-                        Quantity = product.StockQuantity - item.Quantity,
-                        TransactionType = CommonStrings.TransactionSold,
-                        UserId = item.UserId,
-                        TransactionLog = $"{product.ProductName} has been {CommonStrings.TransactionSold} with {item.Quantity} quantity to {users.Username}."
-                    };
-                await InventoryService.UpdateInventoryTransaction(inventory);
-                await ProductService.UpdateProductStockQuantity(item.ProductId, product.StockQuantity - item.Quantity);
+            if (items.Count() > 0)
+            {
+                toastService.ShowSuccessToast("Order Confirmed", "Your order has been successfully placed!");
+
+                foreach (var item in items)
+                {
+                    Products product = await ProductService.GetProductByIdAsync(item.ProductId);
+
+                    var inventory = new InventoryTransactionQueryViewModel()
+                        {
+                            ProductId = item.ProductId,
+                            NewQuantity = product.StockQuantity - item.Quantity,
+                            Quantity = product.StockQuantity - item.Quantity,
+                            TransactionType = CommonStrings.TransactionSold,
+                            UserId = item.UserId,
+                            TransactionLog = $"{product.ProductName} has been {CommonStrings.TransactionSold} with {item.Quantity} quantity to {users.Username}."
+                        };
+
+                    await InventoryService.UpdateInventoryTransaction(inventory);
+                    await ProductService.UpdateProductStockQuantity(item.ProductId, product.StockQuantity - item.Quantity);
+                }
+
+                await CheckoutService.ClearCheckoutAsync(users.UserId);
+
+                // Short delay to ensure toast is visible before navigating
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/productlist");
             }
-            await CheckoutService.ClearCheckoutAsync(users.UserId);
-            Navigation.NavigateTo("/productlist");
+            else
+            {
+                // Handle order failure
+                toastService.ShowErrorToast("Order Failed", "There was a problem processing your order. Please try again.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Handle order failure (e.g., show error message)
+            toastService.ShowErrorToast("Error", $"Failed to confirm order: {ex.Message}");
         }
     }
 }

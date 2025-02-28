@@ -128,12 +128,7 @@
 
         Categories = await CategoryService.GetAllCategories();
 
-        // Only load suppliers list if user is not a supplier
-        if (user.UserRole != "Supplier")
-        {
-            Suppliers = await SupplierService.GetAllSuppliers();
-        }
-        //Suppliers = await SupplierService.GetAllSuppliers();
+        Suppliers = await SupplierService.GetAllSuppliers();
     }
 
     private async Task HandleValidSubmit()
@@ -159,7 +154,7 @@
                     StockQuantity = Product.StockQuantity,
                     CreatedAt = DateTime.Now,
                     SupplierId = Product.SupplierId,
-                    SellerId = Suppliers.FirstOrDefault(sup=> sup.SupplierId.Equals(Product.SupplierId)).UserId
+                    SellerId = Suppliers.FirstOrDefault(sup => sup.SupplierId.Equals(Product.SupplierId)).UserId
                 });
 
             await ProductDetailService.AddProductDetailAsync(new ProductDetails()

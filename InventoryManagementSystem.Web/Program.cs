@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MudBlazor.Services;
 using NetcodeHub.Packages.Components.Toast;
+using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +52,13 @@ builder.Services.AddAuthenticationCore();
 
 builder.Services.AddScoped<ToastService>();
 
+//serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/errorlog.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add authentication services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -88,5 +96,8 @@ app.UseMiddleware<AuthMiddleware>();
 
 app.UseAuthentication(); // Enable authentication middleware
 app.UseAuthorization(); // Enable authorization middleware
+
+// Serilog request logging
+app.UseSerilogRequestLogging();
 
 app.Run();

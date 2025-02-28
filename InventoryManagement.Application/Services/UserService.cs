@@ -8,7 +8,6 @@ using InventoryManagement.Repo.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 using InventoryManagement.Repo.Repository;
 using InventoryManagement.Models.ViewModel;
 

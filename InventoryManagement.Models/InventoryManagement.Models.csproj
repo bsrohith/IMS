@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
     <PackageReference Include="Microsoft.JSInterop" Version="8.0.12" />
     <PackageReference Include="NetcodeHub.Packages.Components.Toast" Version="1.0.1" />
+    <PackageReference Include="System.Formats.Asn1" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>

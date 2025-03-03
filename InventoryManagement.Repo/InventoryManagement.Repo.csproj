@@ -1,78 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	<TargetFramework>net8.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+
+
+
+
+
+
   <ItemGroup>
-    <Compile Include="obj\Debug\net8.0\InventoryManagement.Repo.AssemblyInfo.cs" />
+	<ProjectReference Include="..\InventoryManagement.Models\InventoryManagement.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\net8.0\InventoryManagement.Repo.deps.json" />
-    <Content Include="obj\Debug\net8.0\InventoryManagement.Repo.csproj.FileListAbsolute.txt" />
-    <Content Include="obj\Debug\net8.0\InventoryManagement.Repo.sourcelink.json" />
-    <Content Include="obj\InventoryManagement.Repo.csproj.nuget.dgspec.json" />
-    <Content Include="obj\project.assets.json" />
+	<PackageReference Include="Dapper" Version="2.1.66" />
+	<PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
+	<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+	<PackageReference Include="Microsoft.JSInterop" Version="8.0.12" />
+	<PackageReference Include="NetcodeHub.Packages.Components.Toast" Version="1.0.1" />
+	<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+	<PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
+	<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+	<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+	<PackageReference Include="System.Formats.Asn1" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="bin\Debug\net8.0\InventoryManagement.Common.dll" />
-    <None Include="bin\Debug\net8.0\InventoryManagement.Common.pdb" />
-    <None Include="bin\Debug\net8.0\InventoryManagement.Models.dll" />
-    <None Include="bin\Debug\net8.0\InventoryManagement.Models.pdb" />
-    <None Include="bin\Debug\net8.0\InventoryManagement.Repo.dll" />
-    <None Include="bin\Debug\net8.0\InventoryManagement.Repo.pdb" />
-    <None Include="obj\Debug\net8.0\Inventor.D07C854A.Up2Date" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.AssemblyInfoInputs.cache" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.assets.cache" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.csproj.AssemblyReference.cache" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.csproj.CoreCompileInputs.cache" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.dll" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.GeneratedMSBuildEditorConfig.editorconfig" />
-    <None Include="obj\Debug\net8.0\InventoryManagement.Repo.pdb" />
-    <None Include="obj\Debug\net8.0\refint\InventoryManagement.Repo.dll" />
-    <None Include="obj\Debug\net8.0\ref\InventoryManagement.Repo.dll" />
-    <None Include="obj\InventoryManagement.Repo.csproj.nuget.g.props" />
-    <None Include="obj\InventoryManagement.Repo.csproj.nuget.g.targets" />
-    <None Include="obj\project.nuget.cache" />
+	<ProjectReference Include="..\InventoryManagement.Common\InventoryManagement.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InventoryManagement.Models\InventoryManagement.Models.csproj" />
+	<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
-    <PackageReference Include="Microsoft.JSInterop" Version="8.0.12" />
-    <PackageReference Include="NetcodeHub.Packages.Components.Toast" Version="1.0.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageReference Include="System.Formats.Asn1" Version="9.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\InventoryManagement.Common\InventoryManagement.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\InventoryManagement.Common\InventoryManagement.Common.csproj" />
+	<ProjectReference Include="..\InventoryManagement.Common\InventoryManagement.Common.csproj" />
   </ItemGroup>
 
 </Project>

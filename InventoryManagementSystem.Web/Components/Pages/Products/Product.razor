@@ -112,10 +112,10 @@
         users = (Users)await UserService.GetCurrentUserAsync();
         if(users.UserRole.Equals(CommonStrings.Admin,StringComparison.OrdinalIgnoreCase))
         {
-            products = (await ProductService.GetAllProductsWithDetailAsync()).ToList();
+            products = (await ProductService.GetAllProductsWithDetailAsync());
         }
         else{
-            products = (await ProductService.GetAllProductsWithDetailWithUserAsync(users.UserId)).ToList();
+            products = (await ProductService.GetAllProductsWithDetailWithUserAsync(users.UserId));
         }
         Categories = await CategoryService.GetAllCategories();
         Suppliers = await SupplierService.GetAllSuppliers();

@@ -78,6 +78,11 @@
         var user = await UserService.Verify(Input.Email, Input.PasswordHash);
         if (user is null)
         {
+            TelemetryClient.TrackEvent("UserClickedLogin", new Dictionary<string, string>
+            {
+                { "User",Input.Email },
+                { "Login", "Fail" }
+            });
             alert.ShowFailed("Invalid Email or Password");
             return;
         }
@@ -97,6 +102,12 @@
         AuthMiddleware.Logins[key] = claimsPrincipal;
         // Navigate to login with key and showAlert parameter
 
+        TelemetryClient.TrackEvent("UserClickedLogin", new Dictionary<string, string>
+        {
+            { "User",user.Username },
+            { "User mail",user.Email },
+            { "Login", "Success" }
+        });
 
         // Show success message using NetcodeHub Toast
         toastService.ShowSuccessToast("Login Successful", "Login successful! Redirecting...");

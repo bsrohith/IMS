@@ -52,6 +52,11 @@ builder.Services.AddAuthenticationCore();
 
 builder.Services.AddScoped<ToastService>();
 
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
 //serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()

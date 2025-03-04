@@ -145,6 +145,11 @@
 
         if (result.Success)
         {
+            TelemetryClient.TrackEvent("UserClickedRegisterButton", new Dictionary<string, string>
+            {
+                { "User", registerModel.Username },
+                { "Registartion", "Success" }
+            });
             toastService.ShowSuccessToast("Registration Successful", result.Message);
             alertClass = "alert alert-success";
             message = result.Message;
@@ -155,6 +160,11 @@
         }
         else
         {
+            TelemetryClient.TrackEvent("UserClickedRegisterButton", new Dictionary<string, string>
+            {
+                { "User", registerModel.Username },
+                { "Registartion", "Fail" }
+            });
             toastService.ShowErrorToast("Registration Failed", result.Message);
             alertClass = "alert alert-danger";
             message = result.Message;
